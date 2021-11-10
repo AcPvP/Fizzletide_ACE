@@ -1057,7 +1057,8 @@ namespace ACE.Server.WorldObjects
             if (houseGuid == 0 && playerHouseGuid == 0)
                 return true;
 
-            var houses = new HashSet<House>();
+            
+/*            var houses = new HashSet<House>();
             CheckHouseRestrictions_GetHouse(houseGuid, houses);
             player.CheckHouseRestrictions_GetHouse(playerHouseGuid, houses);
 
@@ -1065,7 +1066,7 @@ namespace ACE.Server.WorldObjects
             {
                 if (!house.HasPermission(this) || !house.HasPermission(player))
                     return false;
-            }
+            }*/
             return true;
         }
 
@@ -1198,8 +1199,8 @@ namespace ACE.Server.WorldObjects
                         return new List<WeenieErrorWithString>() { WeenieErrorWithString.YouFailToAffect_TheyAreNotPK, WeenieErrorWithString._FailsToAffectYou_YouAreNotPK };
 
                     // Ensure not attacking across housing boundary
-                    if (!CheckHouseRestrictions(targetPlayer))
-                        return new List<WeenieErrorWithString>() { WeenieErrorWithString.YouFailToAffect_AcrossHouseBoundary, WeenieErrorWithString._FailsToAffectYouAcrossHouseBoundary };
+                    // if (!CheckHouseRestrictions(targetPlayer))
+                    //    return new List<WeenieErrorWithString>() { WeenieErrorWithString.YouFailToAffect_AcrossHouseBoundary, WeenieErrorWithString._FailsToAffectYouAcrossHouseBoundary };
                 }
 
                 // additional checks for different PKTypes
