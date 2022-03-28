@@ -735,7 +735,12 @@ namespace ACE.Server.Managers
                 ("pvp_ar_missile_cap", new Property<double>(0.6, "The cap on what proportion of armor can be reduced on missile AR. Should be between 0 and 1. Default is 0.6 for a 60% reduction in armor.")),
 
                 ("phantom_shield_damage_multi", new Property<double>(1.0, "The damage multiplier done by phantom weapons vs shields. Default is 1.0x")),
-                ("phantom_damage_multi", new Property<double>(1.0, "The damage multiplier done by phantom weapons vs armor. Default is 1.0x"))
+                ("phantom_damage_multi", new Property<double>(1.0, "The damage multiplier done by phantom weapons vs armor. Default is 1.0x")),
+
+                ("arenas_time_limit", new Property<double>(600, "Time limit for an arena match in seconds")),
+                ("arenas_countdown", new Property<double>(10, "Countdown lead time in seconds")),
+                ("arenas_time_limit_alert", new Property<double>(60, "Length of time before alerting for running out of time in seconds")),
+                ("arenas_win_buffer", new Property<double>(10, "Buffer time for winner before they get teleported in seconds"))
                 );
 
         public static readonly ReadOnlyDictionary<string, Property<string>> DefaultStringProperties =
@@ -750,7 +755,8 @@ namespace ACE.Server.Managers
                 ("turbine_chat_webhook", new Property<string>("", "Webhook to be used for turbine chat. This is for copying ingame general chat channels to a Discord channel.")),
                 ("turbine_chat_webhook_audit", new Property<string>("", "Webhook to be used for ingame audit log.")),
                 ("town_control_alleglist", new Property<string>("", "A comma separated list of MonarchID values to whitelist allegiances for participation in town control events")),
-                ("town_control_globals_webhook", new Property<string>("", "Webhook to be send Town Control global messages."))
+                ("town_control_globals_webhook", new Property<string>("", "Webhook to be send Town Control global messages.")),
+                ("arenas_blocked_list", new Property<string>("", "A comma separated list of CharacterID values that cannot participate in Arenas"))
                 );
     }
 }

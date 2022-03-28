@@ -205,8 +205,8 @@ namespace ACE.Server.Command.Handlers
         public static void HandleArenasQueue(Session session, params string[] parameters)
         {
             var player = session.Player;
-            ArenasManager.GetArena().QueuePlayer(player);
-            session.Network.EnqueueSend(new GameMessageSystemChat($"Queued up for arenas. There are {ArenasManager.GetArena().PlayerQueue.Count} players in queue.", ChatMessageType.Broadcast));
+            var msg = ArenasManager.GetArena().QueuePlayer(player);
+            session.Network.EnqueueSend(new GameMessageSystemChat(msg, ChatMessageType.Broadcast));
         }
 
         [CommandHandler("arenasremove", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Queue's a player up for 1v1 arenas")]
