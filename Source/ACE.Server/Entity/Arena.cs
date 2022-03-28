@@ -122,6 +122,16 @@ namespace ACE.Server.Entity.Arenas
 
         public void Countdown()
         {
+            var activePks = this.GetAllPlayers().Where(player => player.PKTimerActive).ToList();
+            if(activePks.Count > 0)
+            {
+                var nonActivePks = this.GetAllPlayers().Where(player => !player.PKTimerActive).ToList();
+                this.PlayerQueue.InsertRange(0, nonActivePks);
+                this.ResetArena(true);
+                MessagePlayers($"Queue has been reset because one of you bums got PK tagged during the countdown phase.");
+                return;
+            }
+            
             var flagCountdown = ArenaCountdownTimer == null ? true : Time.GetUnixTime() > ArenaCountdownTimer;
             if (flagCountdown)
             {
@@ -147,11 +157,11 @@ namespace ACE.Server.Entity.Arenas
             GetLivePlayers().ForEach(player => player.SendMessage($"Congrats! You have won! You will be teleported back to your lifestone in {(int)PropertyManager.GetDouble("arenas_win_buffer").Item} seconds."));
         }
 
-        public void ResetArena()
+        public void ResetArena(bool isPkTagged = false)
         {
             log.Info("ARENAS: Reset team players");
-            // TODO - Teleport live players back to their LS.
-            this.GetLivePlayers().ForEach(player => player.ThreadSafeTeleportOnDeath());
+            if(!isPkTagged)
+                this.GetLivePlayers().ForEach(player => player.ThreadSafeTeleportOnDeath());
             this.GetAllTeamPlayers().ForEach(tPlayer => this.ResetTeamPlayer(tPlayer));
             this.Team1 = new List<TeamPlayer>();
             this.Team2 = new List<TeamPlayer>();

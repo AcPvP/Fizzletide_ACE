@@ -478,7 +478,17 @@ namespace ACE.Server.WorldObjects
             // if player dies on a No Drop landblock,
             // they don't drop any items
 
-            if (corpse.IsOnNoDropLandblock || IsPKLiteDeath(corpse.KillerId))
+            if(this.IsInArena)
+            {
+                //var pkTrophy = WorldObjectFactory.CreateNewWorldObject(1000002);
+                //pkTrophy.SetStackSize(1);
+                //var killer = (Player)PlayerManager.FindByGuid(new ObjectGuid((uint)corpse.KillerId));
+                //killer.TryCreateInInventoryWithNetworking(pkTrophy);
+                //Session.Network.EnqueueSend(new GameMessageCreateObject(pkTrophy));
+                //killer.SendMessage("You have received a trophy for the kill.");
+            }
+
+            if (corpse.IsOnNoDropLandblock || IsPKLiteDeath(corpse.KillerId) || this.IsInArena)
                 return new List<WorldObject>();
 
             var numItemsDropped = GetNumItemsDropped(corpse);

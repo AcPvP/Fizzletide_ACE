@@ -64,5 +64,11 @@ namespace ACE.Server.Managers
                 arena.Tick();
 
         }
+
+        public static void ResetArena()
+        {
+            var arena = GetArena();
+            arena.ResetArena(true);
+        }
     }
 }
