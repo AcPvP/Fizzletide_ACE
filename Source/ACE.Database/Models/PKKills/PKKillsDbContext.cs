@@ -54,6 +54,9 @@ namespace ACE.Database.Models.PKKills
                 entity.Property(e => e.KillerId)
                     .HasColumnName("killer_Id");
 
+                entity.Property(e => e.KillType)
+                    .HasColumnName("kill_Type");
+
             });
 
             OnModelCreatingPartial(modelBuilder);

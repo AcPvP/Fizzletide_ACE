@@ -9,6 +9,7 @@ using ACE.Entity;
 using ACE.Entity.Enum;
 using ACE.Server.Entity;
 using ACE.Server.Entity.Actions;
+using ACE.Server.Entity.Arenas;
 using ACE.Server.Managers;
 using ACE.Server.Network;
 using ACE.Server.Network.GameEvent.Events;
@@ -190,6 +191,30 @@ namespace ACE.Server.Command.Handlers
                     session.Player.MagicState.CastMeter = false;
             }
             session.Network.EnqueueSend(new GameMessageSystemChat($"Cast efficiency meter {(session.Player.MagicState.CastMeter ? "enabled" : "disabled")}", ChatMessageType.Broadcast));
+        }
+
+        [CommandHandler("arenascheck", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Queue's a player up for 1v1 arenas")]
+        public static void HandleArenasCheck(Session session, params string[] parameters)
+        {
+            var player = session.Player;
+            session.Network.EnqueueSend(new GameMessageSystemChat($"There are {ArenasManager.GetArena().PlayerQueue.Count} players in queue.", ChatMessageType.Broadcast));
+        }
+
+
+        [CommandHandler("arenasqueue", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Queue's a player up for 1v1 arenas")]
+        public static void HandleArenasQueue(Session session, params string[] parameters)
+        {
+            var player = session.Player;
+            ArenasManager.GetArena().QueuePlayer(player);
+            session.Network.EnqueueSend(new GameMessageSystemChat($"Queued up for arenas. There are {ArenasManager.GetArena().PlayerQueue.Count} players in queue.", ChatMessageType.Broadcast));
+        }
+
+        [CommandHandler("arenasremove", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Queue's a player up for 1v1 arenas")]
+        public static void HandleArenasRemove(Session session, params string[] parameters)
+        {
+            var player = session.Player;
+            ArenasManager.GetArena().RemovePlayer(player);
+            session.Network.EnqueueSend(new GameMessageSystemChat($"Removed from queue.", ChatMessageType.Broadcast));
         }
 
         private static List<string> configList = new List<string>()

@@ -596,6 +596,14 @@ namespace ACE.Server.WorldObjects
 
                 var alreadyDropped = false;
 
+                DatabaseManager.PKKills.CreateKill((uint)corpse.VictimId, (uint)killer.Guid.Full, this.IsInArena);
+
+                if (this.IsInArena)
+                {
+                    ArenasManager.PlayerDeath(this);
+                    // TODO - Reward killer
+                }
+
                 if (TownControlLandblocks.IsTownControlLandcell(this.Location.Cell))
                 {
                     var townId = TownControlLandblocks.GetTownIdByLandcellId(this.Location.Cell);

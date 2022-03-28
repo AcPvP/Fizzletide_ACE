@@ -46,6 +46,8 @@ namespace ACE.Server.WorldObjects
 
         public bool LastContact = true;
 
+        public bool IsInArena { get; set; } = false;
+
         private List<double> recentJumps = new List<double>();
 
         public bool IsJumping
