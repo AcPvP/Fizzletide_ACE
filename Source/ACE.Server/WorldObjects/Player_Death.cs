@@ -480,12 +480,12 @@ namespace ACE.Server.WorldObjects
 
             if(this.IsInArena)
             {
-                //var pkTrophy = WorldObjectFactory.CreateNewWorldObject(1000002);
-                //pkTrophy.SetStackSize(1);
-                //var killer = (Player)PlayerManager.FindByGuid(new ObjectGuid((uint)corpse.KillerId));
-                //killer.TryCreateInInventoryWithNetworking(pkTrophy);
-                //Session.Network.EnqueueSend(new GameMessageCreateObject(pkTrophy));
-                //killer.SendMessage("You have received a trophy for the kill.");
+                var pkTrophy = WorldObjectFactory.CreateNewWorldObject(1000002);
+                pkTrophy.SetStackSize(1);
+                var killer = (Player)PlayerManager.FindByGuid(new ObjectGuid((uint)corpse.KillerId));
+                killer.TryCreateInInventoryWithNetworking(pkTrophy);
+                Session.Network.EnqueueSend(new GameMessageCreateObject(pkTrophy));
+                killer.SendMessage("You have received a trophy for the kill.");
             }
 
             if (corpse.IsOnNoDropLandblock || IsPKLiteDeath(corpse.KillerId) || this.IsInArena)
