@@ -35,6 +35,11 @@ namespace ACE.Server.Managers
         public static void Initialize()
         {
             var arena = new Entity.Arenas.Arena();
+            //0x33DA0025 [113.822762 103.755890 60.005001] -0.912438 0.000000 0.000000 -0.409214
+            arena.Team1Position = new Position(0x33DA0025, (float)113.822762, (float)103.755890, (float)60.005001, (float)0.000000, (float)0.000000, (float)-0.409214, (float)-0.912438);
+            //0x33DA0025 [104.038803 112.469658 60.005001] 0.343646 0.000000 0.000000 -0.939099
+            arena.Team2Position = new Position(0x33DA0025, (float)104.038803, (float)112.469658, (float)60.005001, (float)0.000000, (float)0.000000, (float)-0.939099, (float)0.343646);
+
             arenas.Add(arena);
         }
 

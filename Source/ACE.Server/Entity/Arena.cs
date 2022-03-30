@@ -33,6 +33,9 @@ namespace ACE.Server.Entity.Arenas
         public double? TimeLimit { get; set; } = null;
         public double? TimeLimitAlert { get; set; } = null;
         public double? WinBuffer { get; set; } = null;
+        public Position Team1Position { get; set; } = null;
+        public Position Team2Position { get; set; } = null;
+
 
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public List<TeamPlayer> GetAllTeamPlayers() { return this.Team1.Concat(this.Team2).ToList(); }
@@ -46,11 +49,6 @@ namespace ACE.Server.Entity.Arenas
 
         public void Tick()
         {
-
-            // TODO - If a player is PK tagged, remove them from the queue
-            // TODO - Reward players when they dominate
-            // Player_Death:602
-            // TODO - fix the ELO server to calculate only arena ELO
             if (this.CountDownPhase)
                 this.Countdown();
 
@@ -60,9 +58,6 @@ namespace ACE.Server.Entity.Arenas
             this.CheckTimeLimit();
             this.CheckTeamLoss(Team1);
             this.CheckTeamLoss(Team2);
-            // TODO - winning team rewards (not necessary for 1's)
-            // Don't need this for 1v1's
-
         }
 
         public void CheckTimeLimit()
@@ -199,13 +194,8 @@ namespace ACE.Server.Entity.Arenas
         public void TeleportTeams()
         {
             log.Info("ARENAS: Teleporting Teams.");
-            //var currentPos = new Position(player.Location);
-            //player.Teleport(session.Player.Location);
-            //player.SetPosition(PositionType.TeleportedCharacter, currentPos);
-            //0x016C021C[87.998772 - 53.007347 0.005000] 0.637975 0.000000 0.000000 - 0.770057
-            //0x016C0239[100.235168 - 55.323395 0.005000] - 0.723000 0.000000 0.000000 - 0.690848
-            //new Position(0x016C021C, 87.998772, 53.007347, 0.005000, 0.637975, 0.000000, 0.000000, 0.770057);
-            //new Position(cell, positionData[0], positionData[1], positionData[2], positionData[3], positionData[4], positionData[5], positionData[6])
+            this.Team1.ForEach(tPlayer => tPlayer.player.Teleport(this.Team1Position));
+            this.Team2.ForEach(tPlayer => tPlayer.player.Teleport(this.Team2Position));
         }
 
         public Player AddPlayerToTeam(List<TeamPlayer> team)
