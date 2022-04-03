@@ -477,16 +477,23 @@ namespace ACE.Server.WorldObjects
 
             // if player dies on a No Drop landblock,
             // they don't drop any items
-
-            if(this.IsInArena)
+            Player killer = null;
+            if (IsPKDeath(corpse.KillerId))
             {
-                var pkTrophy = WorldObjectFactory.CreateNewWorldObject(1000002);
-                pkTrophy.SetStackSize(1);
-                var killer = (Player)PlayerManager.FindByGuid(new ObjectGuid((uint)corpse.KillerId));
-                killer.TryCreateInInventoryWithNetworking(pkTrophy);
-                Session.Network.EnqueueSend(new GameMessageCreateObject(pkTrophy));
-                killer.SendMessage("You have received a trophy for the kill.");
+                killer = (Player)PlayerManager.FindByGuid(new ObjectGuid((uint)corpse.KillerId));
+                if (this.IsInArena)
+                {
+                    var pkTrophy = WorldObjectFactory.CreateNewWorldObject(1000002);
+                    pkTrophy.SetStackSize(1);
+                    killer.TryCreateInInventoryWithNetworking(pkTrophy);
+                    Session.Network.EnqueueSend(new GameMessageCreateObject(pkTrophy));
+                    killer.SendMessage("You have received a trophy for the kill.");
+                    ArenasManager.PlayerDeath(this);
+
+                }
+                DatabaseManager.PKKills.CreateKill((uint)corpse.VictimId, (uint)killer.Guid.Full, this.IsInArena);
             }
+
 
             if (corpse.IsOnNoDropLandblock || IsPKLiteDeath(corpse.KillerId) || this.IsInArena)
                 return new List<WorldObject>();
@@ -598,21 +605,12 @@ namespace ACE.Server.WorldObjects
                     dropItems.Add(dropItem);
                 }
 
-                var killer = PlayerManager.FindByGuid(new ObjectGuid((uint)corpse.KillerId));
                 var victimMonarch = this.MonarchId != null ? this.MonarchId : this.Guid.Full;
                 var killerMonarch = killer.MonarchId != null ? killer.MonarchId : killer.Guid.Full;
                 var timerLogic = TrophyTimer == null ? true : Time.GetUnixTime() > TrophyTimer;
                 var monarchCheck = victimMonarch != killerMonarch;                
 
                 var alreadyDropped = false;
-
-                DatabaseManager.PKKills.CreateKill((uint)corpse.VictimId, (uint)killer.Guid.Full, this.IsInArena);
-
-                if (this.IsInArena)
-                {
-                    ArenasManager.PlayerDeath(this);
-                    // TODO - Reward killer
-                }
 
                 if (TownControlLandblocks.IsTownControlLandcell(this.Location.Cell))
                 {

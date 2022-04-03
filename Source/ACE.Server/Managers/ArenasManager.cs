@@ -59,7 +59,7 @@ namespace ACE.Server.Managers
         {
             var arena = GetArena();
             //log.Info("ArenasManager.Tick()...");
-            if (!arena.Occupied && arena.PlayerQueue.Count >= 2)
+            if (!arena.Occupied && arena.PlayerQueue.Count >= (int)PropertyManager.GetDouble("arenas_queue_size").Item)
                 arena.Init();
 
             //if (!arena.Occupied || arena.PlayerQueue.Count <= 1)

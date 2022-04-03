@@ -740,7 +740,9 @@ namespace ACE.Server.Managers
                 ("arenas_time_limit", new Property<double>(600, "Time limit for an arena match in seconds")),
                 ("arenas_countdown", new Property<double>(10, "Countdown lead time in seconds")),
                 ("arenas_time_limit_alert", new Property<double>(60, "Length of time before alerting for running out of time in seconds")),
-                ("arenas_win_buffer", new Property<double>(10, "Buffer time for winner before they get teleported in seconds"))
+                ("arenas_win_buffer", new Property<double>(10, "Buffer time for winner before they get teleported in seconds")),
+                ("arenas_queue_size", new Property<double>(4, "When the queue reaches this threshold, it should make teams")),
+                ("arenas_team_size", new Property<double>(2, "Amount of players on each team"))
                 );
 
         public static readonly ReadOnlyDictionary<string, Property<string>> DefaultStringProperties =

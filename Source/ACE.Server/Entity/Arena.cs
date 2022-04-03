@@ -187,8 +187,9 @@ namespace ACE.Server.Entity.Arenas
 
         public void GenerateTeams()
         {
-            AddPlayerToTeam(this.Team1);
-            AddPlayerToTeam(this.Team2);
+            var availablePlayers = this.ShufflePlayers(this.PlayerQueue).Take((int)PropertyManager.GetDouble("arenas_queue_size").Item).ToList();
+            availablePlayers = AddPlayerToTeam(this.Team1, availablePlayers);
+            availablePlayers = AddPlayerToTeam(this.Team2, availablePlayers);
         }
 
         public void TeleportTeams()
@@ -198,17 +199,31 @@ namespace ACE.Server.Entity.Arenas
             this.Team2.ForEach(tPlayer => tPlayer.player.Teleport(this.Team2Position));
         }
 
-        public Player AddPlayerToTeam(List<TeamPlayer> team)
+        public List<Player> AddPlayerToTeam(List<TeamPlayer> team, List<Player> totalAvailablePlayers)
         {
-            var player = PlayerQueue.First();
-            player.IsInArena = true;
-            PlayerQueue.Remove(player);
-            var teamPlayer = new TeamPlayer();
-            teamPlayer.player = player;
-            team.Add(teamPlayer);
-            return player;
+            //var player = PlayerQueue.First();
+            //player.IsInArena = true;
+            //PlayerQueue.Remove(player);
+            //var teamPlayer = new TeamPlayer();
+            //teamPlayer.player = player;
+            //team.Add(teamPlayer);
+            //return player;
+            var availablePlayers = totalAvailablePlayers.Take((int)PropertyManager.GetDouble("arenas_team_size").Item).ToList();
+            availablePlayers.ForEach(player => {
+                player.IsInArena = true;
+                PlayerQueue.Remove(player);
+                totalAvailablePlayers.Remove(player);
+                var teamPlayer = new TeamPlayer();
+                teamPlayer.player = player;
+                team.Add(teamPlayer);
+            });
+            return totalAvailablePlayers;
         }
 
-
+        public List<Player> ShufflePlayers(List<Player> availablePlayers)
+        {
+            Random rnd = new Random();
+            return availablePlayers.OrderBy(x => rnd.Next()).ToList();
+        }
     }
 }
