@@ -170,9 +170,16 @@ namespace ACE.Server.Entity.Arenas
         public string QueuePlayer(Player player)
         {
             var arenasBlockedList = PropertyManager.GetString("arenas_blocked_list").Item ?? string.Empty;
+            var levelReq = (int)PropertyManager.GetDouble("arenas_level_requirement").Item;
             var arenasBlockedListArray = arenasBlockedList.Split(",").ToList();
             if (arenasBlockedListArray.Contains(player.Guid.Full.ToString()))
                 return "Nah.";
+
+            if(player.IsNPK)
+                return "PK Only you dolt.";
+
+            if (player.Level < levelReq)
+                return "You aren't high enough.";
 
             if (this.PlayerQueue.Contains(player))
                 return "You are already in the queue.";
