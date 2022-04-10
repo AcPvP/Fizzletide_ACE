@@ -227,6 +227,7 @@ namespace ACE.Server.Command.Handlers.Processors
                     return;
                 }
             }
+
             switch (contentType)
             {
                 case FileType.LandblockInstance:
@@ -242,25 +243,7 @@ namespace ACE.Server.Command.Handlers.Processors
                     break;
 
                 case FileType.Weenie:
-                    if (param.Equals("all", StringComparison.OrdinalIgnoreCase))
-                    {
-                        ImportSQLWeenieWrapped(session, param, parameters.Length >= 3 ? parameters[2] : "");
-                    }
-                    else if(param.Equals("folder", StringComparison.OrdinalIgnoreCase))
-                    {
-                        string folderName = "";
-
-                        for(int i = 2; i < parameters.Length; i++)
-                        {
-                            folderName += parameters[i] + (i == parameters.Length - 1 ? "" : " ");
-                        }
-
-                        ImportSQLWeenieWrapped(session, param, folderName);
-                    }
-                    else
-                    {
-                        ImportSQLWeenie(session, param);
-                    }
+                    ImportSQLWeenie(session, param);
                     break;
             }
         }
