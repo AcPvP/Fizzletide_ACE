@@ -227,7 +227,6 @@ namespace ACE.Server.Command.Handlers.Processors
                     return;
                 }
             }
-
             switch (contentType)
             {
                 case FileType.LandblockInstance:
@@ -2246,13 +2245,13 @@ namespace ACE.Server.Command.Handlers.Processors
         [Flags]
         public enum CacheType
         {
-            None            = 0x0,
-            Landblock       = 0x1,
-            Recipe          = 0x2,
-            Spell           = 0x4,
-            Weenie          = 0x8,
+            None = 0x0,
+            Landblock = 0x1,
+            Recipe = 0x2,
+            Spell = 0x4,
+            Weenie = 0x8,
             WieldedTreasure = 0x10,
-            All             = 0xFFFF
+            All = 0xFFFF
         };
 
         public static FileType GetFileType(string filename)
@@ -2758,12 +2757,12 @@ namespace ACE.Server.Command.Handlers.Processors
                     {
                         CommandHandlerHelper.WriteOutputInfo(session, $"Unable to parse X ({strX}) value from line {i} in vlocDB: {vlocs[i]}");
                         continue;
-                    }    
+                    }
                     if (!float.TryParse(strY, out var y))
                     {
                         CommandHandlerHelper.WriteOutputInfo(session, $"Unable to parse Y ({strY}) value from line {i} in vlocDB: {vlocs[i]}");
                         continue;
-                    }    
+                    }
 
                     if ((objCellId >> 16) != lbid) continue;
 
@@ -2798,51 +2797,6 @@ namespace ACE.Server.Command.Handlers.Processors
             {
                 CommandHandlerHelper.WriteOutputInfo(session, $"Invalid Landblock ID: {parameters[0]}\nLandblock ID should be in the hex format such as this: @vloc2loc 0xAB94");
             }
-        }
-
-        public static void ImportSQLWeenieWrapped(Session session, string param, string param2)
-        {
-            DirectoryInfo di = VerifyContentFolder(session);
-            if (!di.Exists) return;
-
-            var sep = Path.DirectorySeparatorChar;
-
-            var prefix = param + " ";
-
-            var sql_folder = $"{di.FullName}{sep}sql{sep}weenies{sep}";
-
-            if (param.Equals("folder", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(param2))
-            {
-                if (param2.Contains(".."))
-                {
-                    CommandHandlerHelper.WriteOutputInfo(session, $"Path may not contain the sequence '..'");
-                    return;
-                }
-                sql_folder = $"{sql_folder}{param2}{sep}";
-                prefix = "";
-            }
-            else if (param.Equals("all", StringComparison.OrdinalIgnoreCase))
-            {
-                prefix = "";
-            }
-
-            di = new DirectoryInfo(sql_folder);
-            if (!di.Exists)
-            {
-                CommandHandlerHelper.WriteOutputInfo(session, $"Couldn't find folder: {di.FullName}");
-                return;
-            }
-
-            var files = di.Exists ? di.GetFiles($"{prefix}*.sql", SearchOption.AllDirectories) : null;
-
-            if (files == null || files.Length == 0)
-            {
-                CommandHandlerHelper.WriteOutputInfo(session, $"Couldn't find {sql_folder}{prefix}*.sql");
-                return;
-            }
-
-            foreach (var file in files)
-                ImportSQLWeenie(session, Path.GetDirectoryName(file.FullName) + Path.DirectorySeparatorChar, file.Name);
         }
     }
 }
