@@ -16,6 +16,7 @@ using ACE.Server.Entity.Actions;
 using ACE.Server.Network.GameEvent.Events;
 using ACE.Server.Network.GameMessages.Messages;
 using ACE.Server.Managers;
+using ACE.Server.Entity.TownControl;
 
 namespace ACE.Server.WorldObjects
 {
@@ -680,7 +681,9 @@ namespace ACE.Server.WorldObjects
 
 
             //For Hotspot landblocks, don't allow more than X players from the same allegiance at a time
-            if(HotspotLandblocks.IsHotspotLandblock(newPosition.Landblock))
+            if(HotspotLandblocks.IsHotspotLandblock(newPosition.Landblock)
+                && this.WeenieType != WeenieType.Sentinel
+                && this.WeenieType != WeenieType.Admin)
             {
                 HotspotArea hsArea = HotspotLandblocks.GetLandblockHotspotArea(newPosition.Landblock);
 
@@ -715,13 +718,29 @@ namespace ACE.Server.WorldObjects
                     //If there's already the max number of players from same Allegiance, send a message and kick to the LS
                     if (sameAllegPlayersInArea.Count >= hsArea.MaxPlayersPerAllegiance)
                     {
-                        //Send a message to player to explain
                         this.Session.Network.EnqueueSend(new GameMessageSystemChat($"You have attempted to enter a zerg restricted area.  {playerAllegName} already has {hsArea.MaxPlayersPerAllegiance} players in this area, which is the maximum allowed per allegiance.  You have been redirected to your lifestone.", ChatMessageType.Broadcast));                        
 
                         Teleport(Sanctuary);
                         return;
-                    }                    
-                }                
+                    }
+
+                    //If player's allegiance is not whitelisted don't allow entry
+                    if (!TownControlAllegiances.IsAllowedAllegiance((int)playerMonarchId.Value))
+                    {
+                        this.Session.Network.EnqueueSend(new GameMessageSystemChat($"You have attempted to enter a zerg restricted area.  This area is currently only open to clans who are whitelisted for town control to prevent players from breaking allegiance in order to exceed clan capacity restrictions.  Please contact an admin to get your clan whitelisted for entry.", ChatMessageType.Broadcast));
+
+                        Teleport(Sanctuary);
+                        return;
+                    }
+                }
+                else
+                {
+                    //The player has no allegiance, disallow entry
+                    this.Session.Network.EnqueueSend(new GameMessageSystemChat($"You have attempted to enter a zerg restricted area.  Unfortunately you are not a member of an allegiance and are unable to enter this area to prevent abuse by players who break allegiance to exceed the clan capacity limitations.  You have been redirected to your lifestone.", ChatMessageType.Broadcast));
+
+                    Teleport(Sanctuary);
+                    return;
+                }
             }
 
             HandlePreTeleportVisibility(newPosition);
