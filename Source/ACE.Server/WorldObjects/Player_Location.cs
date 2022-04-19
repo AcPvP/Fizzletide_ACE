@@ -678,6 +678,52 @@ namespace ACE.Server.WorldObjects
             if (UnderLifestoneProtection)
                 LifestoneProtectionDispel();
 
+
+            //For Hotspot landblocks, don't allow more than X players from the same allegiance at a time
+            if(HotspotLandblocks.IsHotspotLandblock(newPosition.Landblock))
+            {
+                HotspotArea hsArea = HotspotLandblocks.GetLandblockHotspotArea(newPosition.Landblock);
+
+                //Get the player's Allegiance ID
+                var playerAllegiance = AllegianceManager.GetAllegiance(this);
+                uint? playerMonarchId = null;
+                string playerAllegName = null;
+                if (playerAllegiance != null && playerAllegiance.MonarchId.HasValue)
+                {
+                    playerMonarchId = playerAllegiance.MonarchId.Value;
+                    playerAllegName = playerAllegiance.Monarch.Player.Name;
+
+                    //Check how many other players are in the same area from the same Allegiance
+                    List<Player> sameAllegPlayersInArea = new List<Player>();
+                    foreach(var landblockId in hsArea.AreaLandblockIds)
+                    {
+                        var landblock = LandblockManager.GetLandblock(new LandblockId(landblockId << 16), false);
+                        var playersInLandblock = landblock.GetCurrentLandblockPlayers();
+                        foreach(var landblockPlayer in playersInLandblock)
+                        {
+                            var lbPlayerAlleg = AllegianceManager.GetAllegiance(landblockPlayer);
+                            if(lbPlayerAlleg != null &&
+                                lbPlayerAlleg.MonarchId.HasValue &&
+                                lbPlayerAlleg.MonarchId.Equals(playerMonarchId) &&
+                                !sameAllegPlayersInArea.Contains(landblockPlayer))
+                            {
+                                sameAllegPlayersInArea.Add(landblockPlayer);
+                            }
+                        }
+                    }
+
+                    //If there's already the max number of players from same Allegiance, send a message and kick to the LS
+                    if (sameAllegPlayersInArea.Count >= hsArea.MaxPlayersPerAllegiance)
+                    {
+                        //Send a message to player to explain
+                        this.Session.Network.EnqueueSend(new GameMessageSystemChat($"You have attempted to enter a zerg restricted area.  {playerAllegName} already has {hsArea.MaxPlayersPerAllegiance} players in this area, which is the maximum allowed per allegiance.  You have been redirected to your lifestone.", ChatMessageType.Broadcast));                        
+
+                        Teleport(Sanctuary);
+                        return;
+                    }                    
+                }                
+            }
+
             HandlePreTeleportVisibility(newPosition);
 
             UpdatePlayerPosition(new Position(newPosition), true);
@@ -875,6 +921,7 @@ namespace ACE.Server.WorldObjects
             0x5965,     // Gauntlet Arena Two (Radiant Blood)
             0x0174,     // Potato Golems
             0x01C9,     // Abandoned Mines
+            0xF2EA,     // Irwin's Demise
         };
 
         /// <summary>
@@ -909,6 +956,6 @@ namespace ACE.Server.WorldObjects
             playerWasMovedFromNoLogLandblock = true;
 
             return;
-        }
+        }        
     }
 }
