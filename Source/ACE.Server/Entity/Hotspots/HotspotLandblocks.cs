@@ -21,7 +21,7 @@ namespace ACE.Server.Entity
 
                     //Irwin's Demise
                     var irwins = new HotspotArea();
-                    irwins.MaxPlayersPerAllegiance = 2;
+                    irwins.MaxPlayersPerAllegiance = 5;
                     irwins.AreaLandblockIds = new uint[] { 0xF2EA };
                     _hotspotLandblocksMap.Add(0xF2EA, irwins);
                 }
