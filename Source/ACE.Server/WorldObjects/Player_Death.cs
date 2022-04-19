@@ -567,6 +567,8 @@ namespace ACE.Server.WorldObjects
             }
 
             var destroyCoins = PropertyManager.GetBool("corpse_destroy_pyreals").Item;
+
+            //PK Trophy drop on death behavior
             if (IsPKDeath(corpse.KillerId))
             {
                 Random rnd = new Random();
@@ -574,20 +576,13 @@ namespace ACE.Server.WorldObjects
                 switch(this.Level)
                 {
                     case > 150:
-                        shouldDropTrophy = rnd.Next(4);
+                        shouldDropTrophy = rnd.Next(2);
                         break;
                     case > 100:
-                        shouldDropTrophy = rnd.Next(10);
+                        shouldDropTrophy = rnd.Next(9);
                         break;
                 }
-                
-                if (this.CurrentLandblock.Id.ToString().Contains("07FA"))
-                {
-                    var dropItem = WorldObjectFactory.CreateNewWorldObject(1000002);
-                    dropItem.SetStackSize(1);
-                    dropItems.Add(dropItem);
-                }
-
+                                
                 var killer = PlayerManager.FindByGuid(new ObjectGuid((uint)corpse.KillerId));
                 var victimMonarch = this.MonarchId != null ? this.MonarchId : this.Guid.Full;
                 var killerMonarch = killer.MonarchId != null ? killer.MonarchId : killer.Guid.Full;
@@ -596,39 +591,51 @@ namespace ACE.Server.WorldObjects
 
                 var alreadyDropped = false;
 
-                if (TownControlLandblocks.IsTownControlLandcell(this.Location.Cell))
+                if (timerLogic && monarchCheck)
                 {
-                    var townId = TownControlLandblocks.GetTownIdByLandcellId(this.Location.Cell);
-
-                    if (townId.HasValue && monarchCheck)
+                    if (PkTrophyLandblocks.IsStaticTrophyDropLandblock(this.CurrentLandblock.Id.Raw))
                     {
-                        var town = DatabaseManager.TownControl.GetTownById(townId.Value);
-                        if (town.IsInConflict)
+                        //For landblocks that always drop a set number of pk trophies
+                        uint stackSize = PkTrophyLandblocks.GetNumTrophiesToDropForLandblock(this.CurrentLandblock.Id.Raw);
+                        if (stackSize > 0)
                         {
                             var pkTrophy = WorldObjectFactory.CreateNewWorldObject(1000002);
-                            pkTrophy.SetStackSize(1);
+                            pkTrophy.SetStackSize((int)stackSize);
                             dropItems.Add(pkTrophy);
                             alreadyDropped = true;
                         }
                     }
-                }
+                    else if (TownControlLandblocks.IsTownControlLandcell(this.Location.Cell))
+                    {
+                        //For Town Control landblocks that always drop a set number of pk trophies within a certain subset of cells
+                        var townId = TownControlLandblocks.GetTownIdByLandcellId(this.Location.Cell);
 
-                //Golems drops trophies every time
-                if (this.CurrentLandblock.Id.ToString().Contains("0174"))
-                {
-                    var pkTrophy = WorldObjectFactory.CreateNewWorldObject(1000002);
-                    pkTrophy.SetStackSize(2);
-                    dropItems.Add(pkTrophy);
-                    alreadyDropped = true;
-                }
+                        if (townId.HasValue && monarchCheck)
+                        {
+                            var town = DatabaseManager.TownControl.GetTownById(townId.Value);
+                            if (town.IsInConflict)
+                            {
+                                var pkTrophy = WorldObjectFactory.CreateNewWorldObject(1000002);
+                                pkTrophy.SetStackSize(1);
+                                dropItems.Add(pkTrophy);
+                                alreadyDropped = true;
+                            }
+                        }
+                    }
 
-                if (!alreadyDropped && shouldDropTrophy == 1 && monarchCheck && timerLogic)
-                {
-                    var dropItem = WorldObjectFactory.CreateNewWorldObject(1000002);
-                    dropItem.SetStackSize(1);
-                    dropItems.Add(dropItem);
-                    SetProperty(PropertyFloat.TrophyTimer, Time.GetFutureUnixTime(3600)); // Set the cooldown only on trophy generation
-                }                
+                    if (!alreadyDropped && shouldDropTrophy == 1)
+                    {
+                        var dropItem = WorldObjectFactory.CreateNewWorldObject(1000002);
+                        dropItem.SetStackSize(1);
+                        dropItems.Add(dropItem);
+                        alreadyDropped = true;
+                    }
+
+                    if (alreadyDropped)
+                    {
+                        SetProperty(PropertyFloat.TrophyTimer, Time.GetFutureUnixTime(3600)); // Set the cooldown only on trophy generation
+                    }
+                }
             }
 
             // add items to corpse
