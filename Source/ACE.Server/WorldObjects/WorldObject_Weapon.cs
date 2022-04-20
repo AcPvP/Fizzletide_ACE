@@ -910,7 +910,7 @@ namespace ACE.Server.WorldObjects
 
         public static float MaxArmorRendingMod = 0.6f;
 
-        public static float GetArmorRendingMod(CreatureSkill skill, bool isPvP)
+        public static float GetArmorRendingMod(CreatureSkill skill, bool isPvP, WorldObject weapon)
         {
             var skill1 = GetImbuedSkillType(skill);
 
@@ -922,7 +922,26 @@ namespace ACE.Server.WorldObjects
             if (!isPvP)
                 armorRendingMod = 1.0f;
             else if (skill1 == ImbuedSkillType.Melee)
-                armorRendingMod = 1.6f - (float)PropertyManager.GetDouble("pvp_ar_melee_cap").Item;
+            {
+                switch (weapon.WeaponSkill)
+                {
+                    case Skill.HeavyWeapons:
+                        armorRendingMod = 1.6f - (float)PropertyManager.GetDouble("pvp_ar_hw_melee_cap").Item;
+                        break;
+                    case Skill.LightWeapons:
+                        armorRendingMod = 1.6f - (float)PropertyManager.GetDouble("pvp_ar_lw_melee_cap").Item;
+                        break;
+                    case Skill.FinesseWeapons:
+                        armorRendingMod = 1.6f - (float)PropertyManager.GetDouble("pvp_ar_fw_melee_cap").Item;
+                        break;
+                    case Skill.TwoHandedCombat:
+                        armorRendingMod = 1.6f - (float)PropertyManager.GetDouble("pvp_ar_2h_melee_cap").Item;
+                        break;
+                    default:
+                        armorRendingMod = 1.6f - (float)PropertyManager.GetDouble("pvp_ar_melee_cap").Item;
+                        break;
+                }                
+            }
             else if (skill1 == ImbuedSkillType.Missile)
                 armorRendingMod = 1.6f - (float)PropertyManager.GetDouble("pvp_ar_missile_cap").Item;
             else //not possible?
