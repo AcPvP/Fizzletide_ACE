@@ -352,7 +352,7 @@ namespace ACE.Server.Entity
             // armor rending and cleaving
             var armorRendingMod = 1.0f;
             if (Weapon != null && Weapon.HasImbuedEffect(ImbuedEffectType.ArmorRending))
-                armorRendingMod = WorldObject.GetArmorRendingMod(attackSkill, playerDefender != null);
+                armorRendingMod = WorldObject.GetArmorRendingMod(attackSkill, playerDefender != null, Weapon);
 
             var armorCleavingMod = attacker.GetArmorCleavingMod(Weapon);
 

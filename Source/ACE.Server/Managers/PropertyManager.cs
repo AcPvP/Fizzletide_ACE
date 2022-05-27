@@ -732,6 +732,10 @@ namespace ACE.Server.Managers
                 ("thrown_damage", new Property<double>(0, "The amount of flat damage added to thrown weapons per tink. Note for each damage event the added damage will be randomized between 1 and this value. Default is 0.")),
 
                 ("pvp_ar_melee_cap", new Property<double>(0.6, "The cap on what proportion of armor can be reduced on melee AR. Should be between 0 and 1. Default is 0.6 for a 60% reduction in armor.")),
+                ("pvp_ar_hw_melee_cap", new Property<double>(0.6, "The cap on what proportion of armor can be reduced on melee AR. Should be between 0 and 1. Default is 0.6 for a 60% reduction in armor.")),
+                ("pvp_ar_lw_melee_cap", new Property<double>(0.6, "The cap on what proportion of armor can be reduced on melee AR. Should be between 0 and 1. Default is 0.6 for a 60% reduction in armor.")),
+                ("pvp_ar_fw_melee_cap", new Property<double>(0.6, "The cap on what proportion of armor can be reduced on melee AR. Should be between 0 and 1. Default is 0.6 for a 60% reduction in armor.")),
+                ("pvp_ar_2h_melee_cap", new Property<double>(0.6, "The cap on what proportion of armor can be reduced on melee AR. Should be between 0 and 1. Default is 0.6 for a 60% reduction in armor.")),
                 ("pvp_ar_missile_cap", new Property<double>(0.6, "The cap on what proportion of armor can be reduced on missile AR. Should be between 0 and 1. Default is 0.6 for a 60% reduction in armor.")),
 
                 ("phantom_shield_damage_multi", new Property<double>(1.0, "The damage multiplier done by phantom weapons vs shields. Default is 1.0x")),

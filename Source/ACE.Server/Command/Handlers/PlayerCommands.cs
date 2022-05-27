@@ -652,7 +652,7 @@ namespace ACE.Server.Command.Handlers
                         if(respiteExpirationDate.HasValue && respiteExpirationDate.Value > DateTime.UtcNow)
                         {
                             TimeSpan timeLeft = respiteExpirationDate.Value - DateTime.UtcNow;
-                            CommandHandlerHelper.WriteOutputInfo(session, $"Your clan can attack {townName} again in {timeLeft.Minutes} minutes and {timeLeft.Seconds} seconds", ChatMessageType.Broadcast);
+                            CommandHandlerHelper.WriteOutputInfo(session, $"Your clan can attack {townName} again in {timeLeft.TotalMinutes} minutes", ChatMessageType.Broadcast);
                             return;
                         }
                     }

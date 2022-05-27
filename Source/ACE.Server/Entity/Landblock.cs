@@ -28,6 +28,7 @@ using ACE.Server.WorldObjects;
 
 using Position = ACE.Entity.Position;
 using ACE.Server.Entity.TownControl;
+using ACE.Server.Network.GameMessages.Messages;
 
 namespace ACE.Server.Entity
 {
@@ -628,6 +629,95 @@ namespace ACE.Server.Entity
             foreach (var player in players)
                 player.Player_Tick(currentUnixTime);
             ServerPerformanceMonitor.AddToCumulativeEvent(ServerPerformanceMonitor.CumulativeEventHistoryType.Landblock_Tick_Player_Tick, stopwatch.Elapsed.TotalSeconds);
+
+            //Hotspot landblock
+            //Kick entire allegiance if we find they have too many players
+            //Kill anyone we find that's not in a whitelisted allegiance
+            if (HotspotLandblocks.IsHotspotLandblock(this.Id.Landblock))
+            {
+                var area = HotspotLandblocks.GetLandblockHotspotArea(this.Id.Landblock);
+
+                Dictionary<uint, uint> clansOnHotspot = new Dictionary<uint, uint>();
+                List<IPlayer> playersOnHotspot = new List<IPlayer>();
+                List<IPlayer> playersNotWhitelisted = new List<IPlayer>();
+
+                foreach (var block in area.AreaLandblockIds)
+                {
+                    var landblock = LandblockManager.GetLandblock(new LandblockId(block << 16), false);
+                    var playersInLandblock = landblock.GetCurrentLandblockPlayers();
+                    foreach (var landblockPlayer in playersInLandblock)
+                    {
+                        var lbPlayerAlleg = AllegianceManager.GetAllegiance(landblockPlayer);
+                        if (lbPlayerAlleg != null && lbPlayerAlleg.MonarchId.HasValue && !playersOnHotspot.Contains(landblockPlayer))
+                        {
+                            if (clansOnHotspot.ContainsKey(lbPlayerAlleg.MonarchId.Value))
+                            {
+                                clansOnHotspot[lbPlayerAlleg.MonarchId.Value]++;
+                            }
+                            else
+                            {
+                                clansOnHotspot.Add(lbPlayerAlleg.MonarchId.Value, 1);
+                            }
+
+                            playersOnHotspot.Add(landblockPlayer);
+                        }
+
+                        if (!landblockPlayer.IsAdmin &&
+                            (lbPlayerAlleg == null || !lbPlayerAlleg.MonarchId.HasValue || !TownControlAllegiances.IsAllowedAllegiance((int)lbPlayerAlleg.MonarchId.Value)))
+                        {
+                            playersNotWhitelisted.Add(landblockPlayer);
+                        }
+                    }
+                }
+
+                //Boot any clans with too many players in the area
+                var clansWithTooManyInArea = clansOnHotspot.Where(x => x.Value > area.MaxPlayersPerAllegiance);
+
+                if(clansWithTooManyInArea != null && clansWithTooManyInArea.Count() > 0)
+                {
+                    foreach(var clan in clansWithTooManyInArea)
+                    {
+                        foreach (var lbPlayer in playersOnHotspot)
+                        {
+                            var lbPlayerAlleg = AllegianceManager.GetAllegiance(lbPlayer);
+                            if (lbPlayerAlleg != null && lbPlayerAlleg.MonarchId.HasValue && lbPlayerAlleg.MonarchId.Value.Equals(clan.Key))
+                            {
+                                try
+                                {
+                                    //Teleport to LS
+                                    var currPlayer = (Player)lbPlayer;
+                                    currPlayer.Session.Network.EnqueueSend(new GameMessageSystemChat("You have violated the max number of members allowed inside of a zerg restricted area.  Fuck you.", ChatMessageType.Broadcast));
+                                    currPlayer.Teleport(currPlayer.Sanctuary);                                    
+                                }
+                                catch(Exception ex)
+                                {
+                                    log.Error($"Failed kicking player {lbPlayer.Name} to lifestone after allegiance violated hotspot landblock restrictions.  Ex: {ex}");
+                                }
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                }
+
+                //Kill any players in the area who are not part of a whitelisted allegiance
+                foreach(var disallowedPlayer in playersNotWhitelisted)
+                {
+                    try
+                    {
+                        var currPlayer = (Player)disallowedPlayer;
+                        currPlayer.Session.Network.EnqueueSend(new GameMessageSystemChat("You have violated the whitelist inside of a zerg restricted area.  Fuck you.", ChatMessageType.Broadcast));
+                        currPlayer.Teleport(currPlayer.Sanctuary);
+                    }
+                    catch(Exception ex)
+                    {
+                        log.Error($"Failed removing player {disallowedPlayer.Name} to LS for violating hotspot landblock whitelist.  Ex: {ex}");
+                    }
+                }
+            }
+            
 
             stopwatch.Restart();
             while (sortedWorldObjectsByNextHeartbeat.Count > 0) // Heartbeat()
