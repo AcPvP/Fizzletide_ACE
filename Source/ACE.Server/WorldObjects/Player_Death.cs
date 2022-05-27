@@ -599,9 +599,9 @@ namespace ACE.Server.WorldObjects
                         break;
                 }
                                 
-                var killer = PlayerManager.FindByGuid(new ObjectGuid((uint)corpse.KillerId));
+                var _killer = PlayerManager.FindByGuid(new ObjectGuid((uint)corpse.KillerId));
                 var victimMonarch = this.MonarchId != null ? this.MonarchId : this.Guid.Full;
-                var killerMonarch = killer.MonarchId != null ? killer.MonarchId : killer.Guid.Full;
+                var killerMonarch = _killer.MonarchId != null ? _killer.MonarchId : _killer.Guid.Full;
                 var timerLogic = TrophyTimer == null ? true : Time.GetUnixTime() > TrophyTimer;
                 var monarchCheck = victimMonarch != killerMonarch;                
 
