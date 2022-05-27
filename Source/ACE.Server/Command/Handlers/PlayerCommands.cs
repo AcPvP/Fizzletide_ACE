@@ -193,28 +193,41 @@ namespace ACE.Server.Command.Handlers
             session.Network.EnqueueSend(new GameMessageSystemChat($"Cast efficiency meter {(session.Player.MagicState.CastMeter ? "enabled" : "disabled")}", ChatMessageType.Broadcast));
         }
 
-        [CommandHandler("arenascheck", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Queue's a player up for 1v1 arenas")]
+
+
+        [CommandHandler("arenascheck", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Queue's a player up for arenas. Options: ones/threes/fives")]
         public static void HandleArenasCheck(Session session, params string[] parameters)
         {
+            if (parameters.Length == 0 || !parameters[0].Contains("ones") || parameters[0].Contains("threes") || parameters[0].Contains("fives"))
+                session.Network.EnqueueSend(new GameMessageSystemChat("Invalid parameter. Available options: ones/threes/fives. Example: /arenasqueue ones", ChatMessageType.Broadcast));
+
             var player = session.Player;
-            session.Network.EnqueueSend(new GameMessageSystemChat($"There are {ArenasManager.GetArena().PlayerQueue.Count} players in queue.", ChatMessageType.Broadcast));
+            var arena = ArenasManager.GetArena(parameters[0]);
+            if (arena == null)
+                session.Network.EnqueueSend(new GameMessageSystemChat("Invalid parameter. Available options: ones/threes/fives. Example: /arenascheck ones", ChatMessageType.Broadcast));
+            session.Network.EnqueueSend(new GameMessageSystemChat($"There are {arena.PlayerQueue.Count} players in the {arena.ArenaType} queue.", ChatMessageType.Broadcast));
         }
 
 
-        [CommandHandler("arenasqueue", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Queue's a player up for 1v1 arenas")]
+        [CommandHandler("arenasqueue", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Queue's a player up for arenas. Options: ones/threes/fives")]
         public static void HandleArenasQueue(Session session, params string[] parameters)
         {
+            var options = new List<string> { "ones", "threes", "fives" };
+            if(parameters.Length == 0 || !options.Contains(parameters[0]))
+                session.Network.EnqueueSend(new GameMessageSystemChat("Invalid parameter. Available options: ones/threes/fives. Example: /arenasqueue ones", ChatMessageType.Broadcast));
+
             var player = session.Player;
-            var msg = ArenasManager.GetArena().QueuePlayer(player);
+            var arena = ArenasManager.GetArena(parameters[0]);
+            var msg = arena.QueuePlayer(player);
             session.Network.EnqueueSend(new GameMessageSystemChat(msg, ChatMessageType.Broadcast));
         }
 
-        [CommandHandler("arenasremove", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Queue's a player up for 1v1 arenas")]
+        [CommandHandler("arenasremove", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Queue's a player up for arenas. Options: ones/threes/fives")]
         public static void HandleArenasRemove(Session session, params string[] parameters)
         {
             var player = session.Player;
-            ArenasManager.GetArena().RemovePlayer(player);
-            session.Network.EnqueueSend(new GameMessageSystemChat($"Removed from queue.", ChatMessageType.Broadcast));
+            ArenasManager.RemovePlayer(player);
+            session.Network.EnqueueSend(new GameMessageSystemChat($"Removed from all arenas queues.", ChatMessageType.Broadcast));
         }
 
         private static List<string> configList = new List<string>()

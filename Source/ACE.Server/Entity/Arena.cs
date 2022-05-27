@@ -7,6 +7,7 @@ using ACE.Entity;
 using ACE.Common;
 using ACE.Server.WorldObjects;
 using ACE.Server.Managers;
+using ACE.Database;
 using log4net;
 
 namespace ACE.Server.Entity.Arenas
@@ -27,15 +28,19 @@ namespace ACE.Server.Entity.Arenas
 
         public bool CountDownPhase { get; set; } = false;
         public bool EndSequence { get; set; } = false;
+        public bool Live { get; set; } = false;
         public int CurrentCountdownPhase { get; set; } = 0;
         public int CountdownSeconds { get; set; } = 0;
+        public int CreateTeamsAt { get; set; } = 0;
+        public int TeamSize { get; set; } = 0;
         public double? ArenaCountdownTimer { get; set; } = null;
         public double? TimeLimit { get; set; } = null;
         public double? TimeLimitAlert { get; set; } = null;
         public double? WinBuffer { get; set; } = null;
+        public string ArenaType { get; set; } = null;
         public Position Team1Position { get; set; } = null;
         public Position Team2Position { get; set; } = null;
-
+        public uint[] Landcells { get; set; } = { };
 
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public List<TeamPlayer> GetAllTeamPlayers() { return this.Team1.Concat(this.Team2).ToList(); }
@@ -58,6 +63,34 @@ namespace ACE.Server.Entity.Arenas
             this.CheckTimeLimit();
             this.CheckTeamLoss(Team1);
             this.CheckTeamLoss(Team2);
+
+            if(this.Live)
+                this.CheckPussyPlayers();
+        }
+
+        public void CheckPussyPlayers()
+        {
+            var liveTPlayers = this.GetLiveTeamPlayers();
+            liveTPlayers.ForEach(tPlayer => {
+                var stillInLandblock = this.Landcells.Contains(tPlayer.player.Location.Cell);
+                if (!stillInLandblock)
+                {
+                    tPlayer.player.SendMessage("You pussy.");
+                    this.GetOppositeTeam(tPlayer).ForEach(otPlayer =>
+                    {
+                        DatabaseManager.PKKills.CreateKill(tPlayer.player.Guid.Full, otPlayer.player.Guid.Full, true, this.ArenaType);
+                    });
+                    tPlayer.isDead = true;
+                }
+            });
+        }
+
+        public List<TeamPlayer> GetOppositeTeam(TeamPlayer tPlayer)
+        {
+            if (Team1.Contains(tPlayer))
+                return Team2;
+
+            return Team1;
         }
 
         public void CheckTimeLimit()
@@ -113,6 +146,7 @@ namespace ACE.Server.Entity.Arenas
             this.TeleportTeams();
             this.TimeLimit = Time.GetFutureUnixTime((int)PropertyManager.GetDouble("arenas_time_limit").Item);
             this.TimeLimitAlert = Time.GetFutureUnixTime((int)PropertyManager.GetDouble("arenas_time_limit_alert").Item);
+            this.Live = true;
         }
 
         public void Countdown()
@@ -147,6 +181,7 @@ namespace ACE.Server.Entity.Arenas
 
         public void StartEndSequence()
         {
+            this.Live = false;
             this.EndSequence = true;
             this.WinBuffer = Time.GetFutureUnixTime((int)PropertyManager.GetDouble("arenas_win_buffer").Item);
             GetLivePlayers().ForEach(player => player.SendMessage($"Congrats! You have won! You will be teleported back to your lifestone in {(int)PropertyManager.GetDouble("arenas_win_buffer").Item} seconds."));
@@ -182,19 +217,20 @@ namespace ACE.Server.Entity.Arenas
                 return "You aren't high enough.";
 
             if (this.PlayerQueue.Contains(player))
-                return "You are already in the queue.";
+                return $"You are already in the {this.ArenaType} queue.";
 
-            if(this.ContainsPlayer(player))
-                return "You are already in the arena.";
+            var arena = ArenasManager.WhichArenaIsPlayerIn(player);
+            if(arena != null)
+                return $"You are already in the {arena.ArenaType} arena.";
 
             this.PlayerQueue.Add(player);
 
-            return $"Queued up for arenas. There are { this.PlayerQueue.Count} players in queue.";
+            return $"Queued up for {this.ArenaType} arenas. There are { this.PlayerQueue.Count } players in {this.ArenaType} queue.";
         }
 
         public void GenerateTeams()
         {
-            var availablePlayers = this.ShufflePlayers(this.PlayerQueue).Take((int)PropertyManager.GetDouble("arenas_queue_size").Item).ToList();
+            var availablePlayers = this.ShufflePlayers(this.PlayerQueue).Take(this.CreateTeamsAt).ToList();
             availablePlayers = AddPlayerToTeam(this.Team1, availablePlayers);
             availablePlayers = AddPlayerToTeam(this.Team2, availablePlayers);
         }
@@ -208,14 +244,7 @@ namespace ACE.Server.Entity.Arenas
 
         public List<Player> AddPlayerToTeam(List<TeamPlayer> team, List<Player> totalAvailablePlayers)
         {
-            //var player = PlayerQueue.First();
-            //player.IsInArena = true;
-            //PlayerQueue.Remove(player);
-            //var teamPlayer = new TeamPlayer();
-            //teamPlayer.player = player;
-            //team.Add(teamPlayer);
-            //return player;
-            var availablePlayers = totalAvailablePlayers.Take((int)PropertyManager.GetDouble("arenas_team_size").Item).ToList();
+            var availablePlayers = totalAvailablePlayers.Take(this.TeamSize).ToList();
             availablePlayers.ForEach(player => {
                 player.IsInArena = true;
                 PlayerQueue.Remove(player);

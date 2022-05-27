@@ -489,7 +489,8 @@ namespace ACE.Server.WorldObjects
                     killer.TryCreateInInventoryWithNetworking(pkTrophy);
                     Session.Network.EnqueueSend(new GameMessageCreateObject(pkTrophy));
                     killer.SendMessage("You have received a trophy for the kill.");
-                    ArenasManager.PlayerDeath(this);
+                    var whichArena = ArenasManager.WhichArenaIsPlayerIn(this);
+                    ArenasManager.PlayerDeath(this, whichArena);
                 }
             }
 
