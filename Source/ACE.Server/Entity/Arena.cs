@@ -124,7 +124,7 @@ namespace ACE.Server.Entity.Arenas
 
         public void CheckTeamLoss(List<TeamPlayer> team)
         {
-            var deadTeam = team.Where(tPlayer => tPlayer.player.IsInArena == false).ToList().Count == team.Count;
+            var deadTeam = team.Where(tPlayer => tPlayer.player.IsInArena == false).ToList().Count == team.Count && team.Count != 0;
             if (deadTeam && !this.EndSequence)
                 this.StartEndSequence();
         }
@@ -200,6 +200,7 @@ namespace ACE.Server.Entity.Arenas
             this.CurrentCountdownPhase = 0;
             this.ArenaCountdownTimer = null;
             this.EndSequence = false;
+            this.WinBuffer = null;
         }
 
         public string QueuePlayer(Player player)
