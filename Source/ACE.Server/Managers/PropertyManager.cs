@@ -742,7 +742,9 @@ namespace ACE.Server.Managers
                 ("phantom_damage_multi", new Property<double>(1.0, "The damage multiplier done by phantom weapons vs armor. Default is 1.0x")),
 
                 ("arenas_time_limit", new Property<double>(600, "Time limit for an arena match in seconds")),
-                ("arenas_countdown", new Property<double>(10, "Countdown lead time in seconds")),
+                ("arenas_countdown_ones", new Property<double>(10, "1v1's Countdown lead time in seconds")),
+                ("arenas_countdown_threes", new Property<double>(30, "3v3's Countdown lead time in seconds")),
+                ("arenas_countdown_fives", new Property<double>(45, "5v5's Countdown lead time in seconds")),
                 ("arenas_time_limit_alert", new Property<double>(60, "Length of time before alerting for running out of time in seconds")),
                 ("arenas_win_buffer", new Property<double>(10, "Buffer time for winner before they get teleported in seconds")),
                 //("arenas_queue_size", new Property<double>(4, "When the queue reaches this threshold, it should make teams")),

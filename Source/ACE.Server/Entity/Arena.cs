@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ACE.Entity;
+using ACE.Entity.Enum;
 using ACE.Common;
 using ACE.Server.WorldObjects;
 using ACE.Server.Managers;
@@ -135,8 +136,22 @@ namespace ACE.Server.Entity.Arenas
             {
                 log.Info("ARENAS: Generating Teams.");
                 this.GenerateTeams();
+                this.AddPlayersToFellow();
                 this.CountDownPhase = true;
-                this.CountdownSeconds = (int)PropertyManager.GetDouble("arenas_countdown").Item;
+                var countdown = "arenas_countdown_ones";
+                switch(this.TeamSize)
+                {
+                    case 1:
+                        countdown = "arenas_countdown_ones";
+                        break;
+                    case 3:
+                        countdown = "arenas_countdown_threes";
+                        break;
+                    case 5:
+                        countdown = "arenas_countdown_fives";
+                        break;
+                }
+                this.CountdownSeconds = (int)PropertyManager.GetDouble(countdown).Item;
                 this.Occupied = true;
             }
         }
@@ -152,7 +167,8 @@ namespace ACE.Server.Entity.Arenas
         public void Countdown()
         {
             var activePks = this.GetAllPlayers().Where(player => player.PKTimerActive).ToList();
-            if(activePks.Count > 0)
+            
+            if (activePks.Count > 0)
             {
                 var nonActivePks = this.GetAllPlayers().Where(player => !player.PKTimerActive).ToList();
                 this.PlayerQueue.InsertRange(0, nonActivePks);
@@ -166,14 +182,14 @@ namespace ACE.Server.Entity.Arenas
             {
                 if (this.CurrentCountdownPhase == 0)
                     MessagePlayers($"You have been chosen for the arenas!! You will be teleported in {this.CountdownSeconds} seconds.");
-                else if (this.CurrentCountdownPhase == 10)
+                else if (this.CurrentCountdownPhase == this.CountdownSeconds)
                 {
                     MessagePlayers($"Go fuck shit up!");
                     this.CountDownPhase = false;
                     this.Start();
                 }
                 else
-                    MessagePlayers($"You will be teleported in {10 - this.CurrentCountdownPhase} seconds.");
+                    MessagePlayers($"You will be teleported in {this.CountdownSeconds - this.CurrentCountdownPhase} seconds.");
                 this.CurrentCountdownPhase += 1;
                 this.ArenaCountdownTimer = Time.GetFutureUnixTime(1);
             }
@@ -226,7 +242,7 @@ namespace ACE.Server.Entity.Arenas
 
             this.PlayerQueue.Add(player);
 
-            return $"Queued up for {this.ArenaType} arenas. There are { this.PlayerQueue.Count } players in {this.ArenaType} queue.";
+            return $"Queued up for {this.ArenaType} arenas. There are { this.PlayerQueue.Count } players in {this.ArenaType} queue. You will be set to automatically accept fellow invites when the queue pops.";
         }
 
         public void GenerateTeams()
@@ -234,8 +250,31 @@ namespace ACE.Server.Entity.Arenas
             var availablePlayers = this.ShufflePlayers(this.PlayerQueue).Take(this.CreateTeamsAt).ToList();
             availablePlayers = AddPlayerToTeam(this.Team1, availablePlayers);
             availablePlayers = AddPlayerToTeam(this.Team2, availablePlayers);
+
         }
 
+        public void AddPlayersToFellow()
+        {
+            this.Team1[0].player.FellowshipCreate("Yellow", false);
+            var leader = this.Team1[0].player;
+            this.Team1.ForEach(tp =>
+            {
+                
+                tp.player.SetCharacterOption(CharacterOption.AutomaticallyAcceptFellowshipRequests, true);
+                tp.player.SetCharacterOption(CharacterOption.IgnoreFellowshipRequests, false);
+                leader.FellowshipRecruit(tp.player);
+            });
+
+            this.Team2[0].player.FellowshipCreate("Pink", false);
+            var leader2 = this.Team2[0].player;
+            this.Team2.ForEach(tp =>
+            {
+                tp.player.SetCharacterOption(CharacterOption.AutomaticallyAcceptFellowshipRequests, true);
+                tp.player.SetCharacterOption(CharacterOption.IgnoreFellowshipRequests, false);
+                leader2.FellowshipRecruit(tp.player);
+            });
+
+        }
         public void TeleportTeams()
         {
             log.Info("ARENAS: Teleporting Teams.");
