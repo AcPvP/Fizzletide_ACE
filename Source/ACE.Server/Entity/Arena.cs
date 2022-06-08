@@ -138,20 +138,8 @@ namespace ACE.Server.Entity.Arenas
                 this.GenerateTeams();
                 this.AddPlayersToFellow();
                 this.CountDownPhase = true;
-                var countdown = "arenas_countdown_ones";
-                switch(this.TeamSize)
-                {
-                    case 1:
-                        countdown = "arenas_countdown_ones";
-                        break;
-                    case 3:
-                        countdown = "arenas_countdown_threes";
-                        break;
-                    case 5:
-                        countdown = "arenas_countdown_fives";
-                        break;
-                }
-                this.CountdownSeconds = (int)PropertyManager.GetDouble(countdown).Item;
+                var teamSize = this.GetTeamSizeString();
+                this.CountdownSeconds = (int)PropertyManager.GetDouble($"arenas_countdown_{teamSize}").Item;
                 this.Occupied = true;
             }
         }
@@ -159,8 +147,10 @@ namespace ACE.Server.Entity.Arenas
         public void Start()
         {
             this.TeleportTeams();
-            this.TimeLimit = Time.GetFutureUnixTime((int)PropertyManager.GetDouble("arenas_time_limit").Item);
-            this.TimeLimitAlert = Time.GetFutureUnixTime((int)PropertyManager.GetDouble("arenas_time_limit_alert").Item);
+            var teamSize = this.GetTeamSizeString();
+
+            this.TimeLimit = Time.GetFutureUnixTime((int)PropertyManager.GetDouble($"arenas_time_limit_{teamSize}").Item);
+            this.TimeLimitAlert = Time.GetFutureUnixTime((int)PropertyManager.GetDouble($"arenas_time_limit_alert_{teamSize}").Item);
             this.Live = true;
         }
 
@@ -217,6 +207,8 @@ namespace ACE.Server.Entity.Arenas
             this.ArenaCountdownTimer = null;
             this.EndSequence = false;
             this.WinBuffer = null;
+            this.TimeLimitAlert = null;
+            this.TimeLimit = null;
         }
 
         public string QueuePlayer(Player player)
@@ -300,6 +292,24 @@ namespace ACE.Server.Entity.Arenas
         {
             Random rnd = new Random();
             return availablePlayers.OrderBy(x => rnd.Next()).ToList();
+        }
+
+        public string GetTeamSizeString()
+        {
+            var teamSize = "ones";
+            switch (this.TeamSize)
+            {
+                case 1:
+                    teamSize = "ones";
+                    break;
+                case 3:
+                    teamSize = "threes";
+                    break;
+                case 5:
+                    teamSize = "fives";
+                    break;
+            }
+            return teamSize;
         }
     }
 }

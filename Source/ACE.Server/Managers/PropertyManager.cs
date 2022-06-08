@@ -741,11 +741,18 @@ namespace ACE.Server.Managers
                 ("phantom_shield_damage_multi", new Property<double>(1.0, "The damage multiplier done by phantom weapons vs shields. Default is 1.0x")),
                 ("phantom_damage_multi", new Property<double>(1.0, "The damage multiplier done by phantom weapons vs armor. Default is 1.0x")),
 
-                ("arenas_time_limit", new Property<double>(600, "Time limit for an arena match in seconds")),
+                ("arenas_time_limit_ones", new Property<double>(300, "Time limit for an arena match in seconds for 1v1s")),
+                ("arenas_time_limit_alert_ones", new Property<double>(240, "Length of time before alerting for running out of time in seconds for 1v1s")),
                 ("arenas_countdown_ones", new Property<double>(10, "1v1's Countdown lead time in seconds")),
+
+                ("arenas_time_limit_threes", new Property<double>(300, "Time limit for an arena match in seconds for 3v3s")),
+                ("arenas_time_limit_alert_threes", new Property<double>(540, "Length of time before alerting for running out of time in seconds for 3v3s")),
                 ("arenas_countdown_threes", new Property<double>(30, "3v3's Countdown lead time in seconds")),
+
+                ("arenas_time_limit_fives", new Property<double>(500, "Time limit for an arena match in seconds for 5v5s")),
+                ("arenas_time_limit_alert_fives", new Property<double>(440, "Length of time before alerting for running out of time in seconds for 5v5s")),
                 ("arenas_countdown_fives", new Property<double>(45, "5v5's Countdown lead time in seconds")),
-                ("arenas_time_limit_alert", new Property<double>(60, "Length of time before alerting for running out of time in seconds")),
+
                 ("arenas_win_buffer", new Property<double>(10, "Buffer time for winner before they get teleported in seconds")),
                 //("arenas_queue_size", new Property<double>(4, "When the queue reaches this threshold, it should make teams")),
                 //("arenas_team_size", new Property<double>(2, "Amount of players on each team")),
