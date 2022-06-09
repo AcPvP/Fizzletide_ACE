@@ -551,11 +551,7 @@ namespace ACE.Server.WorldObjects
                 var isPKLdeath = player.IsPKLiteDeath(killer);
 
                 if (isPKdeath)
-                {
                     corpse.PkLevel = PKLevel.PK;
-                    DatabaseManager.PKKills.CreateKill((uint)corpse.VictimId, (uint)killer.Guid.Full);
-                }
-
 
                 if (!isPKdeath && !isPKLdeath)
                 {
