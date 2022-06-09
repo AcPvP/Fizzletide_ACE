@@ -2883,6 +2883,12 @@ namespace ACE.Server.WorldObjects
             set { if (!value.HasValue) RemoveProperty(PropertyFloat.JumpTimer); else SetProperty(PropertyFloat.JumpTimer, value.Value); }
         }
 
+        public double? ChugTimer
+        {
+            get => GetProperty(PropertyFloat.ChugTimer);
+            set { if (!value.HasValue) RemoveProperty(PropertyFloat.ChugTimer); else SetProperty(PropertyFloat.ChugTimer, value.Value); }
+        }
+
         public double? MaximumVelocity
         {
             get => GetProperty(PropertyFloat.MaximumVelocity);
