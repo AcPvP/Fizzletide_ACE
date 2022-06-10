@@ -1,10 +1,12 @@
 using System;
 using log4net;
+using ACE.Common;
 using ACE.Entity;
 using ACE.Entity.Enum;
 using ACE.Entity.Enum.Properties;
 using ACE.Entity.Models;
 using ACE.Server.Entity;
+using ACE.Server.Managers;
 using ACE.Server.Network.GameMessages.Messages;
 using ACE.Server.Physics;
 
@@ -54,6 +56,28 @@ namespace ACE.Server.WorldObjects
             {
                 player.SendWeenieError(WeenieError.YouCantDoThatWhileInTheAir);
                 return;
+            }
+
+
+            player.ClearChugs();
+            if (BoosterEnum == PropertyAttribute2nd.Health)
+            {
+                // clear jump penalty if you're outside the bounds of the length
+                if (ChugTimer != null && ChugTimer + PropertyManager.GetLong("chug_second_timer").Item < Time.GetUnixTime())
+                    ChugTimer = null;
+
+                if (Time.GetUnixTime() < ChugTimer)
+                {
+                    player.SendWeenieError(WeenieError.YoureTooBusy);
+                    return;
+                }
+
+                var totalIncrease = player.recentChugs.Count - PropertyManager.GetLong("chug_limit").Item * PropertyManager.GetDouble("chug_second_increase").Item;
+                if (totalIncrease > PropertyManager.GetDouble("chug_max_penalty").Item) { totalIncrease = PropertyManager.GetDouble("chug_max_penalty").Item; }
+                if (totalIncrease >= 0)
+                {
+                    SetProperty(PropertyFloat.ChugTimer, Time.GetFutureUnixTime(totalIncrease));
+                }
             }
 
             var motionCommand = GetUseSound() == Sound.Eat1 ? MotionCommand.Eat : MotionCommand.Drink;
@@ -125,7 +149,10 @@ namespace ACE.Server.WorldObjects
             if (BoosterEnum == PropertyAttribute2nd.Health)
             {
                 if (BoostValue >= 0)
+                {
+                    player.recentChugs.Add(Time.GetUnixTime()); // Add current time to recent run chugs
                     player.DamageHistory.OnHeal(vitalChange);
+                }
                 else
                     player.DamageHistory.Add(this, DamageType.Health, vitalChange);
             }

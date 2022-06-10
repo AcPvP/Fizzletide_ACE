@@ -48,6 +48,8 @@ namespace ACE.Server.WorldObjects
 
         private List<double> recentJumps = new List<double>();
 
+        public List<double> recentChugs = new List<double>();
+
         public bool IsJumping
         {
             get
@@ -956,7 +958,7 @@ namespace ACE.Server.WorldObjects
             {
                 shouldGetFucked = true;
                 if(JumpTimer == null)
-                    SetProperty(PropertyFloat.TrophyTimer, Time.GetFutureUnixTime(PropertyManager.GetLong("jump_penalty_length").Item));
+                    SetProperty(PropertyFloat.JumpTimer, Time.GetFutureUnixTime(PropertyManager.GetLong("jump_penalty_length").Item));
             }
 
             // calculate stamina cost for this jump
@@ -1234,6 +1236,12 @@ namespace ACE.Server.WorldObjects
                 innerChain.EnqueueChain();
             });
             actionChain.EnqueueChain();
+        }
+
+        public void ClearChugs()
+        {
+            // Remove chugs that are outside the bounds of the tracking
+            this.recentChugs.RemoveAll(recentChug => recentChug + PropertyManager.GetLong("chug_second_timer").Item < Time.GetUnixTime());
         }
     }
 }
