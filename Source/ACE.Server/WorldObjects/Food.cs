@@ -58,21 +58,26 @@ namespace ACE.Server.WorldObjects
                 return;
             }
 
-            // clear jump penalty if you're outside the bounds of the length
-            if (ChugTimer != null && ChugTimer + PropertyManager.GetLong("chug_second_timer").Item < Time.GetUnixTime())
-                ChugTimer = null;
-            player.ClearChugs();
-            if(Time.GetUnixTime() < ChugTimer)
-            {
-                player.SendWeenieError(WeenieError.YoureTooBusy);
-                return;
-            }
 
-            var totalIncrease = player.recentChugs.Count - PropertyManager.GetLong("chug_limit").Item * PropertyManager.GetDouble("chug_second_increase").Item;
-            if(totalIncrease > PropertyManager.GetDouble("chug_max_penalty").Item) { totalIncrease = PropertyManager.GetDouble("chug_max_penalty").Item; }
-            if (totalIncrease >= 0)
+            player.ClearChugs();
+            if (BoosterEnum == PropertyAttribute2nd.Health)
             {
-                SetProperty(PropertyFloat.ChugTimer, Time.GetFutureUnixTime(totalIncrease));
+                // clear jump penalty if you're outside the bounds of the length
+                if (ChugTimer != null && ChugTimer + PropertyManager.GetLong("chug_second_timer").Item < Time.GetUnixTime())
+                    ChugTimer = null;
+
+                if (Time.GetUnixTime() < ChugTimer)
+                {
+                    player.SendWeenieError(WeenieError.YoureTooBusy);
+                    return;
+                }
+
+                var totalIncrease = player.recentChugs.Count - PropertyManager.GetLong("chug_limit").Item * PropertyManager.GetDouble("chug_second_increase").Item;
+                if (totalIncrease > PropertyManager.GetDouble("chug_max_penalty").Item) { totalIncrease = PropertyManager.GetDouble("chug_max_penalty").Item; }
+                if (totalIncrease >= 0)
+                {
+                    SetProperty(PropertyFloat.ChugTimer, Time.GetFutureUnixTime(totalIncrease));
+                }
             }
 
             var motionCommand = GetUseSound() == Sound.Eat1 ? MotionCommand.Eat : MotionCommand.Drink;
