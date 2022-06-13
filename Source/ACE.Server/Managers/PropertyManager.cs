@@ -636,6 +636,8 @@ namespace ACE.Server.Managers
                 ("jump_limit", new Property<long>(7, "the number of jumps you can do before being penalized")),
                 ("jump_second_timer", new Property<long>(10, "the number of seconds cutoff for jumping")),
                 ("jump_penalty_length", new Property<long>(5, "the number of seconds you're penalized after hitting the jump limits")),
+                ("chug_limit", new Property<long>(3, "the number of chugs you can do before being penalized")),
+                ("chug_second_timer", new Property<long>(15, "the number of seconds cutoff for the chugging penalty")),
                 ("town_control_currency_level_minimum", new Property<long>(150, "the level you are required to be before town control gives you periodic trophies")),
                 ("tc_trophy_randomness", new Property<long>(3, "this number represents the chance to drop trophies in a town control conflict event. 1/3 is the default.")),
                 ("tc_trophy_seconds", new Property<long>(30, "this number represents the seconds between each check for trophy drops"))
@@ -757,6 +759,8 @@ namespace ACE.Server.Managers
                 //("arenas_queue_size", new Property<double>(4, "When the queue reaches this threshold, it should make teams")),
                 //("arenas_team_size", new Property<double>(2, "Amount of players on each team")),
                 ("arenas_level_requirement", new Property<double>(180, "Level requirement for arenas"))
+                ("chug_second_increase", new Property<double>(0.25, "the number of seconds increase during chugging")),
+                ("chug_max_penalty", new Property<double>(1.0, "the maximum number of seconds penalty for chugs"))
                 );
 
         public static readonly ReadOnlyDictionary<string, Property<string>> DefaultStringProperties =
