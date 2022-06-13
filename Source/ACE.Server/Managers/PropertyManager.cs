@@ -758,7 +758,7 @@ namespace ACE.Server.Managers
                 ("arenas_win_buffer", new Property<double>(10, "Buffer time for winner before they get teleported in seconds")),
                 //("arenas_queue_size", new Property<double>(4, "When the queue reaches this threshold, it should make teams")),
                 //("arenas_team_size", new Property<double>(2, "Amount of players on each team")),
-                ("arenas_level_requirement", new Property<double>(180, "Level requirement for arenas"))
+                ("arenas_level_requirement", new Property<double>(180, "Level requirement for arenas")),
                 ("chug_second_increase", new Property<double>(0.25, "the number of seconds increase during chugging")),
                 ("chug_max_penalty", new Property<double>(1.0, "the maximum number of seconds penalty for chugs"))
                 );
