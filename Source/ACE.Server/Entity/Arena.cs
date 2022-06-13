@@ -251,7 +251,7 @@ namespace ACE.Server.Entity.Arenas
             var leader = this.Team1[0].player;
             this.Team1.ForEach(tp =>
             {
-                
+                tp.player.FellowshipQuit(true);
                 tp.player.SetCharacterOption(CharacterOption.AutomaticallyAcceptFellowshipRequests, true);
                 tp.player.SetCharacterOption(CharacterOption.IgnoreFellowshipRequests, false);
                 leader.FellowshipRecruit(tp.player);
@@ -261,6 +261,7 @@ namespace ACE.Server.Entity.Arenas
             var leader2 = this.Team2[0].player;
             this.Team2.ForEach(tp =>
             {
+                tp.player.FellowshipQuit(true);
                 tp.player.SetCharacterOption(CharacterOption.AutomaticallyAcceptFellowshipRequests, true);
                 tp.player.SetCharacterOption(CharacterOption.IgnoreFellowshipRequests, false);
                 leader2.FellowshipRecruit(tp.player);
