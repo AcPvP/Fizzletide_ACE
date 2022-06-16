@@ -48,6 +48,7 @@ namespace ACE.Server.Entity.Arenas
         public List<Player> GetAllPlayers() { return this.GetAllTeamPlayers().Select(tPlayer => tPlayer.player).ToList(); }
         public List<TeamPlayer> GetLiveTeamPlayers() { return this.GetAllTeamPlayers().Where(tPlayer => tPlayer.isDead == false).ToList(); }
         public List<Player> GetLivePlayers() { return this.GetLiveTeamPlayers().Select(tPlayer => tPlayer.player).ToList(); }
+        public TeamPlayer GetTeamPlayerObjByPlayer(Player player) { return this.GetAllTeamPlayers().Where(tPlayer => tPlayer.player == player).First(); }
         public bool ContainsPlayer(Player player) { return this.GetAllPlayers().Contains(player); }
         public void MessagePlayers(string msg) { this.GetAllTeamPlayers().ForEach(tPlayer => tPlayer.player.SendMessage(msg)); }
         public void ResetTeamPlayer(TeamPlayer tPlayer) { tPlayer.player.IsInArena = false; }
@@ -76,14 +77,28 @@ namespace ACE.Server.Entity.Arenas
                 var stillInLandblock = this.Landcells.Contains(tPlayer.player.Location.Cell);
                 if (!stillInLandblock)
                 {
-                    tPlayer.player.SendMessage("You pussy.");
-                    this.GetOppositeTeam(tPlayer).ForEach(otPlayer =>
-                    {
-                        DatabaseManager.PKKills.CreateKill(tPlayer.player.Guid.Full, otPlayer.player.Guid.Full, true, this.ArenaType);
-                    });
-                    tPlayer.isDead = true;
+                    this.PlayerPussiedOut(tPlayer);
                 }
             });
+        }
+
+        public void PlayerPussiedOut(TeamPlayer tPlayer)
+        {
+            tPlayer.player.SendMessage("You pussy.");
+            this.GetOppositeTeam(tPlayer).ForEach(otPlayer =>
+            {
+                DatabaseManager.PKKills.CreateKill(tPlayer.player.Guid.Full, otPlayer.player.Guid.Full, true, this.ArenaType);
+            });
+            tPlayer.isDead = true;
+
+            if (this.Live == false)
+            {
+                this.GetAllPlayers().ForEach(player =>
+                {
+                    player.SendMessage($"{tPlayer.player.Name} pussied out, arena resetting.");
+                });
+                this.ResetArena();
+            }
         }
 
         public List<TeamPlayer> GetOppositeTeam(TeamPlayer tPlayer)

@@ -519,6 +519,13 @@ namespace ACE.Server.WorldObjects
         /// </summary>
         public bool LogOut(bool clientSessionTerminatedAbruptly = false, bool forceImmediate = false)
         {
+            if (IsInArena)
+            {
+                var arena = ArenasManager.WhichArenaIsPlayerIn(this);
+                var teamPlayer = arena.GetTeamPlayerObjByPlayer(this);
+                arena.PlayerPussiedOut(teamPlayer);
+            }
+
             if (PKLogoutActive && !forceImmediate)
             {
                 //Session.Network.EnqueueSend(new GameEventWeenieError(Session, WeenieError.YouHaveBeenInPKBattleTooRecently));

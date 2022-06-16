@@ -230,6 +230,22 @@ namespace ACE.Server.Command.Handlers
             session.Network.EnqueueSend(new GameMessageSystemChat($"Removed from all arenas queues.", ChatMessageType.Broadcast));
         }
 
+        [CommandHandler("arenasreset", AccessLevel.Admin, CommandHandlerFlag.RequiresWorld, "Manually resets an arena. Options: ones/threes/fives")]
+        public static void HandleArenasReset(Session session, params string[] parameters)
+        {
+            var options = new List<string> { "ones", "threes", "fives" };
+            if (parameters.Length == 0 || !options.Contains(parameters[0]))
+                session.Network.EnqueueSend(new GameMessageSystemChat("Invalid parameter. Available options: ones/threes/fives. Example: /arenasqueue ones", ChatMessageType.Broadcast));
+
+            var arena = ArenasManager.GetArena(parameters[0]);
+            if (arena == null)
+                session.Network.EnqueueSend(new GameMessageSystemChat("Couldn't find arena", ChatMessageType.Broadcast));
+
+            arena.ResetArena();
+            session.Network.EnqueueSend(new GameMessageSystemChat($"{parameters[0]} arena reset", ChatMessageType.Broadcast));
+
+        }
+
         private static List<string> configList = new List<string>()
         {
             "Common settings:\nConfirmVolatileRareUse, MainPackPreferred, SalvageMultiple, SideBySideVitals, UseCraftSuccessDialog",
