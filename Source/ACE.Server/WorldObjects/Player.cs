@@ -16,6 +16,7 @@ using ACE.Entity.Enum.Properties;
 using ACE.Entity.Models;
 using ACE.Server.Entity;
 using ACE.Server.Entity.Actions;
+using ACE.Server.Factories;
 using ACE.Server.Managers;
 using ACE.Server.Network;
 using ACE.Server.Network.GameEvent.Events;
@@ -1251,6 +1252,15 @@ namespace ACE.Server.WorldObjects
         {
             // Remove chugs that are outside the bounds of the tracking
             this.recentChugs.RemoveAll(recentChug => recentChug + PropertyManager.GetLong("chug_second_timer").Item < Time.GetUnixTime());
+        }
+
+        public void GiveArenaTrophy()
+        {
+            var trophy = WorldObjectFactory.CreateNewWorldObject(4200157);
+            trophy.SetStackSize(1);
+            this.TryCreateInInventoryWithNetworking(trophy);
+            Session.Network.EnqueueSend(new GameMessageCreateObject(trophy));
+
         }
     }
 }

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ACE.Common;
+using ACE.Database;
 using ACE.Entity;
 using ACE.Entity.Enum;
-using ACE.Common;
-using ACE.Server.WorldObjects;
+using ACE.Server.Factories;
 using ACE.Server.Managers;
-using ACE.Database;
+using ACE.Server.WorldObjects;
 using log4net;
 
 namespace ACE.Server.Entity.Arenas
@@ -85,11 +86,13 @@ namespace ACE.Server.Entity.Arenas
         public void PlayerPussiedOut(TeamPlayer tPlayer)
         {
             tPlayer.player.SendMessage("You pussy.");
+            tPlayer.player.ThreadSafeTeleportOnDeath();
             this.GetOppositeTeam(tPlayer).ForEach(otPlayer =>
             {
                 DatabaseManager.PKKills.CreateKill(tPlayer.player.Guid.Full, otPlayer.player.Guid.Full, true, this.ArenaType);
             });
             tPlayer.isDead = true;
+            tPlayer.player.IsInArena = false;
 
             if (this.Live == false)
             {
@@ -205,7 +208,11 @@ namespace ACE.Server.Entity.Arenas
             this.Live = false;
             this.EndSequence = true;
             this.WinBuffer = Time.GetFutureUnixTime((int)PropertyManager.GetDouble("arenas_win_buffer").Item);
-            GetLivePlayers().ForEach(player => player.SendMessage($"Congrats! You have won! You will be teleported back to your lifestone in {(int)PropertyManager.GetDouble("arenas_win_buffer").Item} seconds."));
+
+            GetLivePlayers().ForEach(player => {
+                player.GiveArenaTrophy();
+                player.SendMessage($"Congrats! You have won! You will be teleported back to your lifestone in {(int)PropertyManager.GetDouble("arenas_win_buffer").Item} seconds.");
+            });
         }
 
         public void ResetArena(bool isPkTagged = false)
@@ -262,21 +269,25 @@ namespace ACE.Server.Entity.Arenas
 
         public void AddPlayersToFellow()
         {
+            this.Team1[0].player.FellowshipQuit(true);
             this.Team1[0].player.FellowshipCreate("Yellow", false);
             var leader = this.Team1[0].player;
             this.Team1.ForEach(tp =>
             {
-                tp.player.FellowshipQuit(true);
+                if(tp != this.Team1[0])
+                    tp.player.FellowshipQuit(true);
                 tp.player.SetCharacterOption(CharacterOption.AutomaticallyAcceptFellowshipRequests, true);
                 tp.player.SetCharacterOption(CharacterOption.IgnoreFellowshipRequests, false);
                 leader.FellowshipRecruit(tp.player);
             });
 
+            this.Team2[0].player.FellowshipQuit(true);
             this.Team2[0].player.FellowshipCreate("Pink", false);
             var leader2 = this.Team2[0].player;
             this.Team2.ForEach(tp =>
             {
-                tp.player.FellowshipQuit(true);
+                if (tp != this.Team2[0])
+                    tp.player.FellowshipQuit(true);
                 tp.player.SetCharacterOption(CharacterOption.AutomaticallyAcceptFellowshipRequests, true);
                 tp.player.SetCharacterOption(CharacterOption.IgnoreFellowshipRequests, false);
                 leader2.FellowshipRecruit(tp.player);
@@ -295,7 +306,7 @@ namespace ACE.Server.Entity.Arenas
             var availablePlayers = totalAvailablePlayers.Take(this.TeamSize).ToList();
             availablePlayers.ForEach(player => {
                 player.IsInArena = true;
-                PlayerQueue.Remove(player);
+                ArenasManager.RemovePlayer(player);
                 totalAvailablePlayers.Remove(player);
                 var teamPlayer = new TeamPlayer();
                 teamPlayer.player = player;

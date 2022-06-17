@@ -42,11 +42,14 @@ namespace ACE.Server.Managers
 
         public static void Initialize()
         {
+
             //0x33DA0025 [113.822762 103.755890 60.005001] -0.912438 0.000000 0.000000 -0.409214
-            onesArena.Team1Position = new Position(0x33DA0025, (float)113.822762, (float)103.755890, (float)60.005001, (float)0.000000, (float)0.000000, (float)-0.409214, (float)-0.912438);
+            //0xF98A0015 [49.301979 101.856255 1.307789] -0.765690 0.000000 0.000000 -0.643210
+            onesArena.Team1Position = new Position(0xF98A0015, (float)49.301979, (float)101.856255, (float)1.307789, (float)0.000000, (float)0.000000, (float)-0.643210, (float)-0.765690);
             //0x33DA0025 [104.038803 112.469658 60.005001] 0.343646 0.000000 0.000000 -0.939099
-            onesArena.Team2Position = new Position(0x33DA0025, (float)104.038803, (float)112.469658, (float)60.005001, (float)0.000000, (float)0.000000, (float)-0.939099, (float)0.343646);
-            onesArena.Landcells = new uint[] { 0x33DA0025 };
+            //0xF98A000D [32.124905 105.667862 0.581727] 0.535742 0.000000 0.000000 -0.844382
+            onesArena.Team2Position = new Position(0xF98A000D, (float)32.124905, (float)105.667862, (float)0.581727, (float)0.000000, (float)0.000000, (float)-0.844382, (float)0.535742);
+            onesArena.Landcells = new uint[] { 0xF98A0005, 0xF98A0004, 0xF98A000C, 0xF98A0015, 0xF98A000D, 0xF98A000E, 0xF98A0006, 0xF98A0014, 0xF98A0016 };
             onesArena.ArenaType = "1v1";
             onesArena.CreateTeamsAt = 2;
             onesArena.TeamSize = 1;
@@ -116,6 +119,24 @@ namespace ACE.Server.Managers
 
             if (arena.Occupied)
                 arena.Tick();
+        }
+
+        public static void ClearQueue(string str)
+        {
+            switch (str)
+            {
+                case "ones":
+                    onesArena.PlayerQueue = new List<Player>();
+                    break;
+                case "threes":
+                    threesArena.PlayerQueue = new List<Player>();
+                    break;
+                case "fives":
+                    fivesArena.PlayerQueue = new List<Player>();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

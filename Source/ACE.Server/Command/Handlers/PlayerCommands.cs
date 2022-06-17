@@ -198,8 +198,16 @@ namespace ACE.Server.Command.Handlers
         [CommandHandler("arenascheck", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Queue's a player up for arenas. Options: ones/threes/fives")]
         public static void HandleArenasCheck(Session session, params string[] parameters)
         {
-            if (parameters.Length == 0 || !parameters[0].Contains("ones") || parameters[0].Contains("threes") || parameters[0].Contains("fives"))
-                session.Network.EnqueueSend(new GameMessageSystemChat("Invalid parameter. Available options: ones/threes/fives. Example: /arenasqueue ones", ChatMessageType.Broadcast));
+            var options = new List<string> { "ones", "threes", "fives" };
+            if (parameters.Length == 0 || !options.Contains(parameters[0]))
+            {
+                session.Network.EnqueueSend(new GameMessageSystemChat("Invalid parameter. Available options: ones/threes/fives. Example: /arenascheck ones", ChatMessageType.Broadcast));
+                return;
+            }
+
+            var enabled = PropertyManager.GetBool($"arenas_enabled_{parameters[0]}").Item;
+            if (!enabled)
+                session.Network.EnqueueSend(new GameMessageSystemChat($"Specified arena disabled: {parameters[0]}", ChatMessageType.Broadcast));
 
             var player = session.Player;
             var arena = ArenasManager.GetArena(parameters[0]);
@@ -213,8 +221,19 @@ namespace ACE.Server.Command.Handlers
         public static void HandleArenasQueue(Session session, params string[] parameters)
         {
             var options = new List<string> { "ones", "threes", "fives" };
-            if(parameters.Length == 0 || !options.Contains(parameters[0]))
+            if (parameters.Length == 0 || !options.Contains(parameters[0]))
+            {
                 session.Network.EnqueueSend(new GameMessageSystemChat("Invalid parameter. Available options: ones/threes/fives. Example: /arenasqueue ones", ChatMessageType.Broadcast));
+                return;
+            }
+
+            var enabled = PropertyManager.GetBool($"arenas_enabled_{parameters[0]}").Item;
+            if(!enabled)
+            {
+                session.Network.EnqueueSend(new GameMessageSystemChat($"Specified arena disabled: {parameters[0]}", ChatMessageType.Broadcast));
+                return;
+            }
+                
 
             var player = session.Player;
             var arena = ArenasManager.GetArena(parameters[0]);
@@ -235,8 +254,12 @@ namespace ACE.Server.Command.Handlers
         {
             var options = new List<string> { "ones", "threes", "fives" };
             if (parameters.Length == 0 || !options.Contains(parameters[0]))
-                session.Network.EnqueueSend(new GameMessageSystemChat("Invalid parameter. Available options: ones/threes/fives. Example: /arenasqueue ones", ChatMessageType.Broadcast));
+            {
+                session.Network.EnqueueSend(new GameMessageSystemChat("Invalid parameter. Available options: ones/threes/fives. Example: /arenasreset ones", ChatMessageType.Broadcast));
+                return;
+            }
 
+            ArenasManager.ClearQueue(parameters[0]);
             var arena = ArenasManager.GetArena(parameters[0]);
             if (arena == null)
                 session.Network.EnqueueSend(new GameMessageSystemChat("Couldn't find arena", ChatMessageType.Broadcast));
