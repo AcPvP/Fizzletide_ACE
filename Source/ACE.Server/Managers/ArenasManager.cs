@@ -59,7 +59,8 @@ namespace ACE.Server.Managers
             threesArena.Team1Position = new Position(0xF4EF002B, (float)141.692657, (float)68.447868, (float)0.005000, (float)0.000000, (float)0.000000, (float)-0.144184, (float)-0.989551);
             //0xF4EF002D[128.417969 113.538658 0.005000] 0.132965 0.000000 0.000000 - 0.991121
             threesArena.Team2Position = new Position(0xF4EF002D, (float)128.417969, (float)113.538658, (float)0.005000, (float)0.000000, (float)0.000000, (float)-0.991121, (float)0.132965);
-            threesArena.Landcells = new uint[] { 0xF4EF002D, 0xF4EF002B, 0xF4EF002C, 0xF4EF0024, 0xF4EF0025, 0xF4EF002E, 0xF4EF0035, 0xF4EF0034, 0xF4EF0033, 0xF4EF0026, 0xF4EF003D, 0xF4EF0023 };
+             
+            threesArena.Landcells = new uint[] { 0xF4EF002D, 0xF4EF002B, 0xF4EF002C, 0xF4EF0024, 0xF4EF0025, 0xF4EF002E, 0xF4EF0035, 0xF4EF0034, 0xF4EF0033, 0xF4EF0026, 0xF4EF003D, 0xF4EF0023, 0xF4EF0036 };
             threesArena.ArenaType = "3v3";
             threesArena.CreateTeamsAt = 6;
             threesArena.TeamSize = 3;

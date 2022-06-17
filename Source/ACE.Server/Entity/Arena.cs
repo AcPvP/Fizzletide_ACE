@@ -48,6 +48,7 @@ namespace ACE.Server.Entity.Arenas
         public List<TeamPlayer> GetAllTeamPlayers() { return this.Team1.Concat(this.Team2).ToList(); }
         public List<Player> GetAllPlayers() { return this.GetAllTeamPlayers().Select(tPlayer => tPlayer.player).ToList(); }
         public List<TeamPlayer> GetLiveTeamPlayers() { return this.GetAllTeamPlayers().Where(tPlayer => tPlayer.isDead == false).ToList(); }
+
         public List<Player> GetLivePlayers() { return this.GetLiveTeamPlayers().Select(tPlayer => tPlayer.player).ToList(); }
         public TeamPlayer GetTeamPlayerObjByPlayer(Player player) { return this.GetAllTeamPlayers().Where(tPlayer => tPlayer.player == player).First(); }
         public bool ContainsPlayer(Player player) { return this.GetAllPlayers().Contains(player); }
@@ -203,15 +204,20 @@ namespace ACE.Server.Entity.Arenas
             }
         }
 
+        public List<TeamPlayer> GetWinningTeamPlayers()
+        {
+            return Team1.Contains(this.GetLiveTeamPlayers().First()) ? Team1 : Team2;
+        }
+
         public void StartEndSequence()
         {
             this.Live = false;
             this.EndSequence = true;
             this.WinBuffer = Time.GetFutureUnixTime((int)PropertyManager.GetDouble("arenas_win_buffer").Item);
 
-            GetLivePlayers().ForEach(player => {
-                player.GiveArenaTrophy();
-                player.SendMessage($"Congrats! You have won! You will be teleported back to your lifestone in {(int)PropertyManager.GetDouble("arenas_win_buffer").Item} seconds.");
+            GetWinningTeamPlayers().ForEach(tPlayer => {
+                tPlayer.player.GiveArenaTrophy();
+                tPlayer.player.SendMessage($"Congrats! You have won! You will be teleported back to your lifestone in {(int)PropertyManager.GetDouble("arenas_win_buffer").Item} seconds.");
             });
         }
 
