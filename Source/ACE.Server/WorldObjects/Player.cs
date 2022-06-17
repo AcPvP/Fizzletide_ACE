@@ -520,6 +520,8 @@ namespace ACE.Server.WorldObjects
         /// </summary>
         public bool LogOut(bool clientSessionTerminatedAbruptly = false, bool forceImmediate = false)
         {
+            ArenasManager.RemovePlayer(this);
+
             if (IsInArena)
             {
                 var arena = ArenasManager.WhichArenaIsPlayerIn(this);
