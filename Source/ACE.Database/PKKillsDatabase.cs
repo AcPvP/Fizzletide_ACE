@@ -52,11 +52,12 @@ namespace ACE.Database
         //    }));
         //}
 
-        public Kills CreateKill(uint victimId, uint killerId)
+        public Kills CreateKill(uint victimId, uint killerId, bool IsInArena=false, string ArenaType="1v1")
         {
             var kill = new Kills();
             kill.VictimId = victimId;
             kill.KillerId = killerId;
+            kill.KillType = !IsInArena ? "GLOBAL" : $"ARENA:{ArenaType}";
             //            account.CreateTime = DateTime.UtcNow;
             using (var context = new PKKillsDbContext())
             {

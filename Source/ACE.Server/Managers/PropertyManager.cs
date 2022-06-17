@@ -608,7 +608,11 @@ namespace ACE.Server.Managers
                 ("world_closed", new Property<bool>(false, "enable this to startup world as a closed to players world")),
                 ("anti_war_detect", new Property<bool>(false, "enable this to break some types of war detect, including the Defiance plugin")),
                 ("shields_allow_noncombat_mode_if_specialized", new Property<bool>(false, "If true, shields will be usable out of combat mode if the wielder has the shield skill specialized.")),
-                ("dispel_rares_pvp", new Property<bool>(false, "If true, disables rare gem buffs from being usable in PvP."))
+                ("dispel_rares_pvp", new Property<bool>(false, "If true, disables rare gem buffs from being usable in PvP.")),
+
+                ("arenas_enabled_ones", new Property<bool>(false, "Enables/disables ones arenas")),
+                ("arenas_enabled_threes", new Property<bool>(false, "Enables/disables threes arenas")),
+                ("arenas_enabled_fives", new Property<bool>(false, "Enables/disables fives arenas"))
                 );
 
         public static readonly ReadOnlyDictionary<string, Property<long>> DefaultLongProperties =
@@ -742,9 +746,25 @@ namespace ACE.Server.Managers
 
                 ("phantom_shield_damage_multi", new Property<double>(1.0, "The damage multiplier done by phantom weapons vs shields. Default is 1.0x")),
                 ("phantom_damage_multi", new Property<double>(1.0, "The damage multiplier done by phantom weapons vs armor. Default is 1.0x")),
+
+                ("arenas_time_limit_ones", new Property<double>(600, "Time limit for an arena match in seconds for 1v1s")),
+                ("arenas_time_limit_alert_ones", new Property<double>(540, "Length of time before alerting for running out of time in seconds for 1v1s")),
+                ("arenas_countdown_ones", new Property<double>(10, "1v1's Countdown lead time in seconds")),
+
+                ("arenas_time_limit_threes", new Property<double>(600, "Time limit for an arena match in seconds for 3v3s")),
+                ("arenas_time_limit_alert_threes", new Property<double>(540, "Length of time before alerting for running out of time in seconds for 3v3s")),
+                ("arenas_countdown_threes", new Property<double>(30, "3v3's Countdown lead time in seconds")),
+
+                ("arenas_time_limit_fives", new Property<double>(600, "Time limit for an arena match in seconds for 5v5s")),
+                ("arenas_time_limit_alert_fives", new Property<double>(540, "Length of time before alerting for running out of time in seconds for 5v5s")),
+                ("arenas_countdown_fives", new Property<double>(45, "5v5's Countdown lead time in seconds")),
+
+                ("arenas_win_buffer", new Property<double>(10, "Buffer time for winner before they get teleported in seconds")),
+                //("arenas_queue_size", new Property<double>(4, "When the queue reaches this threshold, it should make teams")),
+                //("arenas_team_size", new Property<double>(2, "Amount of players on each team")),
+                ("arenas_level_requirement", new Property<double>(180, "Level requirement for arenas")),
                 ("chug_second_increase", new Property<double>(0.25, "the number of seconds increase during chugging")),
                 ("chug_max_penalty", new Property<double>(1.0, "the maximum number of seconds penalty for chugs"))
-
                 );
 
         public static readonly ReadOnlyDictionary<string, Property<string>> DefaultStringProperties =
@@ -759,7 +779,8 @@ namespace ACE.Server.Managers
                 ("turbine_chat_webhook", new Property<string>("", "Webhook to be used for turbine chat. This is for copying ingame general chat channels to a Discord channel.")),
                 ("turbine_chat_webhook_audit", new Property<string>("", "Webhook to be used for ingame audit log.")),
                 ("town_control_alleglist", new Property<string>("", "A comma separated list of MonarchID values to whitelist allegiances for participation in town control events")),
-                ("town_control_globals_webhook", new Property<string>("", "Webhook to be send Town Control global messages."))
+                ("town_control_globals_webhook", new Property<string>("", "Webhook to be send Town Control global messages.")),
+                ("arenas_blocked_list", new Property<string>("", "A comma separated list of CharacterID values that cannot participate in Arenas"))
                 );
     }
 }
