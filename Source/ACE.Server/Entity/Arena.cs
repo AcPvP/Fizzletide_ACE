@@ -137,7 +137,7 @@ namespace ACE.Server.Entity.Arenas
         {
             log.Info($"ARENAS: {player.Name} has died!");
             var teamPlayerWhoDied = this.GetAllTeamPlayers().Where(_teamPlayer => _teamPlayer.player == player).First();
-            player.IsInArena = false;
+            //player.IsInArena = false; moved to player_death.cs
             teamPlayerWhoDied.isDead = true;
         }
 

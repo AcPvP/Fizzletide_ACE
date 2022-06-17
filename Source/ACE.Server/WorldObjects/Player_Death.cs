@@ -491,6 +491,7 @@ namespace ACE.Server.WorldObjects
                     killer.SendMessage("You have received a trophy for the kill.");
                     var whichArena = ArenasManager.WhichArenaIsPlayerIn(this);
                     ArenasManager.PlayerDeath(this, whichArena);
+                    this.IsInArena = false;
                     return new List<WorldObject>();
                 }
             }
