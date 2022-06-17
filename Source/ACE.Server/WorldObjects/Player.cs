@@ -1258,11 +1258,10 @@ namespace ACE.Server.WorldObjects
 
         public void GiveArenaTrophy()
         {
-            //var trophy = WorldObjectFactory.CreateNewWorldObject(4200157);
-            //trophy.SetStackSize(1);
-            //this.TryCreateInInventoryWithNetworking(trophy);
-            //Session.Network.EnqueueSend(new GameMessageCreateObject(trophy));
-
+            var trophy = WorldObjectFactory.CreateNewWorldObject(4200183);
+            trophy.SetStackSize(1);
+            this.TryCreateInInventoryWithNetworking(trophy);
+            Session.Network.EnqueueSend(new GameMessageCreateObject(trophy));
         }
     }
 }
