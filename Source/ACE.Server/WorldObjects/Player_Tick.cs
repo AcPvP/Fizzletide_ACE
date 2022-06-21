@@ -102,7 +102,7 @@ namespace ACE.Server.WorldObjects
 
             TownControlTick();
 
-            LogLandcells();
+            //LogLandcells();
 
             PhysicsObj.ObjMaint.DestroyObjects();
 

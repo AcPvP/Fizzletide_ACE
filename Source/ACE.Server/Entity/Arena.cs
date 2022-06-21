@@ -206,7 +206,17 @@ namespace ACE.Server.Entity.Arenas
 
         public List<TeamPlayer> GetWinningTeamPlayers()
         {
-            return Team1.Contains(this.GetLiveTeamPlayers().First()) ? Team1 : Team2;
+            //if(this.GetLiveTeamPlayers().Count > 0 && Team1.Count > 0 && Team2.Count > 0)
+            //{
+            //    return Team1.Contains(this.GetLiveTeamPlayers().First()) ? Team1 : Team2;
+            //}
+            //else
+            //{
+            //    return this.GetLiveTeamPlayers();
+            //}
+            var livePlayer = this.GetLivePlayers().First();
+            var liveTeamPlayer = this.GetTeamPlayerObjByPlayer(livePlayer);
+            return this.Team1.Contains(liveTeamPlayer) ? Team1 : Team2;
         }
 
         public void StartEndSequence()
@@ -215,10 +225,18 @@ namespace ACE.Server.Entity.Arenas
             this.EndSequence = true;
             this.WinBuffer = Time.GetFutureUnixTime((int)PropertyManager.GetDouble("arenas_win_buffer").Item);
 
-            GetWinningTeamPlayers().ForEach(tPlayer => {
+            // THis was causing a crash on this.GetLiveTeamPlayers().First(). TODO: FIgure out why
+            GetWinningTeamPlayers().ForEach(tPlayer =>
+            {
                 tPlayer.player.GiveArenaTrophy();
                 tPlayer.player.SendMessage($"Congrats! You have won! You will be teleported back to your lifestone in {(int)PropertyManager.GetDouble("arenas_win_buffer").Item} seconds.");
             });
+            //GetLivePlayers().ForEach(player =>
+            //{
+            //    player.GiveArenaTrophy();
+            //    player.SendMessage($"Congrats! You have won! You will be teleported back to your lifestone in {(int)PropertyManager.GetDouble("arenas_win_buffer").Item} seconds.");
+            //});
+
         }
 
         public void ResetArena(bool isPkTagged = false)
